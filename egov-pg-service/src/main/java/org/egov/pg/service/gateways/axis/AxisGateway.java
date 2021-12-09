@@ -1,24 +1,27 @@
 package org.egov.pg.service.gateways.axis;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.egov.pg.models.RefundTransaction;
 import org.egov.pg.models.Transaction;
 import org.egov.pg.models.Transaction.TxnStatusEnum;
 import org.egov.pg.service.Gateway;
-import org.egov.pg.service.gateways.axis.request.CreateOrderRequest;
 import org.egov.pg.service.gateways.axis.request.GetOrderStatusRequest;
 import org.egov.pg.service.gateways.axis.response.GetOrderStatusResponse;
 import org.egov.pg.utils.Utils;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.razorpay.Order;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,16 +33,23 @@ import lombok.extern.slf4j.Slf4j;
 public class AxisGateway implements Gateway {
 
 	private static final String GATEWAY_NAME = "AXIS";
-
-	private final String API_KEY;
-	private final String MERCHANT_URL_PAY;
-	private final String MERCHANT_URL_STATUS;
-	private final String MERCHANT_ID;
+	
+	private static final String AMOUNT="amount";
+	private static final String CURRENCY_STR="currency";
+	private static final String RECEIPT="receipt";
+	private static final String KEY="key";
+	private static final String ORDER_ID="order_id";
+	private static final String CALLBACK_URL="callback_url";
+	
 	private final boolean ACTIVE;
 	private final String CURRENCY;
+	private final String MERCHANT_ID;
+	private final String KEY_ID;
+	private final String KEY_SECRET;
 
 	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
+	private RazorpayClient razorpay;
 
 	/**
 	 * Initialize by populating all required config parameters
@@ -53,56 +63,75 @@ public class AxisGateway implements Gateway {
 	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
-
-		API_KEY = environment.getRequiredProperty("axis.api.key");
-		MERCHANT_ID = environment.getRequiredProperty("axis.merchant.id");
-		MERCHANT_URL_PAY = environment.getRequiredProperty("axis.url.debit");
-		MERCHANT_URL_STATUS = environment.getRequiredProperty("axis.url.status");
+		
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
+		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
+		KEY_ID = environment.getRequiredProperty("axis.key.id");
+		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
+		
+		try {
+			this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
+		} catch (RazorpayException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override
 	public URI generateRedirectURI(Transaction transaction) {
-		JusPayPaymentService juspayService = new JusPayPaymentService().withKey(API_KEY).setBaseUrl(MERCHANT_URL_PAY)
-				.withMerchantId(MERCHANT_ID);
-
-		CreateOrderRequest createOrderRequest = new CreateOrderRequest().withOrderId(transaction.getTxnId())
-				.withAmount(Double.valueOf(transaction.getTxnAmount()));
-		createOrderRequest.setCustomerId(transaction.getUser().getId().toString());
-		createOrderRequest.setCurrency(CURRENCY);
-		createOrderRequest.setReturnUrl(transaction.getCallbackUrl());
-
-		String createOrderResponse = juspayService.createOrder(createOrderRequest);
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(createOrderResponse).build().encode();
-		return uriComponents.toUri();
+		return null;
+	}
+	
+	@Override
+	public Map<String, String> generateRedirectParameter(Transaction transaction) {
+		Map<String, String> responce=new HashMap<>();
+		try {
+			  JSONObject orderRequest = new JSONObject();
+			  orderRequest.put(AMOUNT, Utils.formatAmtAsRupee(transaction.getTxnAmount()));
+			  orderRequest.put(CURRENCY_STR, CURRENCY);
+			  orderRequest.put(RECEIPT, transaction.getTxnId());
+			  Order order = razorpay.Orders.create(orderRequest);
+			  
+			  responce.put(AMOUNT, Utils.formatAmtAsRupee(transaction.getTxnAmount()));
+			  responce.put(KEY, KEY_ID);
+			  responce.put(ORDER_ID, order.get("id"));
+			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
+			  responce.put("description", transaction.getModule());
+			  
+			} catch (RazorpayException e) {
+			  throw new RuntimeException(e);
+			}
+		return responce;
 	}
 
 	@Override
 	public Transaction fetchStatus(Transaction currentStatus, Map<String, String> params) {
-		JusPayPaymentService juspayService = new JusPayPaymentService().withKey(API_KEY).setBaseUrl(MERCHANT_URL_STATUS)
-				.withMerchantId(MERCHANT_ID);
-		GetOrderStatusRequest orderStatusRequest = new GetOrderStatusRequest();
-		orderStatusRequest.withOrderId(currentStatus.getTxnId());
-		GetOrderStatusResponse orderStatusResponse = juspayService.getOrderStatus(orderStatusRequest);
-		return getStatusTransaction(orderStatusResponse);
+		return getStatusTransaction(currentStatus,params);
 	}
-
-	public Transaction getStatusTransaction(GetOrderStatusResponse orderStatusResponse) {
-
-		if (orderStatusResponse.getStatus().equalsIgnoreCase("CHARGED")) {
-			return Transaction.builder().txnId(orderStatusResponse.getTxnId())
-					.txnAmount(orderStatusResponse.getAmount().toString()).txnStatus(TxnStatusEnum.SUCCESS)
-					.gatewayTxnId(orderStatusResponse.getOrderId()).gatewayPaymentMode("")
-					.gatewayStatusCode(orderStatusResponse.getStatusId().toString())
-					.gatewayStatusMsg(orderStatusResponse.getStatus()).responseJson(orderStatusResponse).build();
-		} else {
-			return Transaction.builder().txnId(orderStatusResponse.getTxnId())
-					.txnAmount(Utils.convertPaiseToRupee(orderStatusResponse.getAmount().toString()))
-					.txnStatus(TxnStatusEnum.FAILURE).gatewayTxnId(orderStatusResponse.getOrderId())
-					.gatewayPaymentMode("").gatewayStatusCode(orderStatusResponse.getStatusId().toString())
-					.gatewayStatusMsg(orderStatusResponse.getStatus()).responseJson(orderStatusResponse).build();
+	
+	private String mapToJson(Map<String, String> map) {
+		try {
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+	}
+		
+	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
+		if("captured".equals(params.get("status"))) {
+			return Transaction.builder().txnId(currentStatus.getTxnId())
+					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.FAILURE)
+					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
+					.gatewayStatusCode("")
+					.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
+		}else {
+			return Transaction.builder().txnId(currentStatus.getTxnId())
+					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.SUCCESS)
+					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
+					.gatewayStatusCode("")
+					.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
 		}
+		
 	}
 
 	@Override

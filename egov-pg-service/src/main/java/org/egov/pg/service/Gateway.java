@@ -4,6 +4,7 @@ import org.egov.pg.models.RefundTransaction;
 import org.egov.pg.models.Transaction;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -70,4 +71,7 @@ public interface Gateway {
 
 	RefundTransaction fetchRefundStatus(RefundTransaction currentStatus);
 
+	default Map<String, String> generateRedirectParameter(Transaction transaction){
+		return new HashMap<>();
+	}
 }
