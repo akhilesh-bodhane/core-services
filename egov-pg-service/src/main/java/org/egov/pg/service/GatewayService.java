@@ -72,6 +72,14 @@ public class GatewayService {
         Gateway gateway = getGateway(transaction.getGateway());
         return gateway.generateRedirectURI(transaction);
     }
+    
+    Map<String, String> initiateTxnV2(Transaction transaction) {
+		if (!isGatewayActive(transaction.getGateway()))
+			throw new CustomException("INVALID_PAYMENT_GATEWAY", "Invalid or inactive payment gateway provided");
+
+		Gateway gateway = getGateway(transaction.getGateway());
+		return gateway.generateRedirectParameter(transaction);
+	}
 
     /**
      * Fetch the live transaction status from the gateway
