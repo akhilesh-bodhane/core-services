@@ -55,6 +55,7 @@ public class TransactionRowMapper implements RowMapper<Transaction> {
                     taxAndPayments = taxAndPaymentsReader.readValue(additionalDetails.get("taxAndPayments"));
                 }
             } catch (IOException e) {
+            	e.printStackTrace();
                 throw new CustomException("TXN_FETCH_FAILED", "Failed to deserialize data");
             }
         }
