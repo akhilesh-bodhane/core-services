@@ -11,7 +11,6 @@ import org.egov.pg.models.TransactionDumpRequest;
 import org.egov.pg.producer.Producer;
 import org.egov.pg.repository.TransactionRepository;
 import org.egov.pg.validator.TransactionValidator;
-import org.egov.pg.web.models.TransactionCreateResponse;
 import org.egov.pg.web.models.TransactionCriteria;
 import org.egov.pg.web.models.TransactionRequest;
 import org.egov.tracer.model.CustomException;
@@ -24,11 +23,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import org.egov.pg.web.models.ResponseInfo;
-import org.egov.pg.web.models.TransactionCreateResponse;
-import org.egov.pg.utils.ResponseInfoFactory;
-import org.egov.pg.constants.PgConstants;
 
 /**
  * Handles all transaction related requests
@@ -73,7 +67,7 @@ public class TransactionService {
      * @param transactionRequest Valid transaction request for which transaction needs to be initiated
      * @return Redirect URI to the gateway for the particular transaction
      */
-    public TransactionCreateResponse  initiateTransaction(TransactionRequest transactionRequest) {
+    public Transaction initiateTransaction(TransactionRequest transactionRequest) {
         validator.validateCreateTxn(transactionRequest);
 
         // Enrich transaction by generating txnid, audit details, default status
@@ -87,37 +81,23 @@ public class TransactionService {
                 .auditDetails(transaction.getAuditDetails())
                 .build();
 
-        Map<String, String> otherDeatils=null;
         if(validator.skipGateway(transaction)){
             transaction.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
             generateReceipt(requestInfo, transaction);
         }
         else{
-//            URI uri = gatewayService.initiateTxn(transaction);
-//            transaction.setRedirectUrl(uri.toString());
-//
-//            dump.setTxnRequest(uri.toString());
-        	if(PgConstants.V2_GATEWAY_LIST.contains(transaction.getGateway())) {
-				otherDeatils=gatewayService.initiateTxnV2(transaction);
-				dump.setTxnRequest(otherDeatils.toString());
-			}else {
-				URI uri = gatewayService.initiateTxn(transaction);
-				transaction.setRedirectUrl(uri.toString());
-				dump.setTxnRequest(uri.toString());
-			}
+            URI uri = gatewayService.initiateTxn(transaction);
+            transaction.setRedirectUrl(uri.toString());
+
+            dump.setTxnRequest(uri.toString());
         }
 
         // Persist transaction and transaction dump objects
         producer.push(appProperties.getSaveTxnTopic(), new org.egov.pg.models.TransactionRequest
                 (requestInfo, transaction));
         producer.push(appProperties.getSaveTxnDumpTopic(), new TransactionDumpRequest(requestInfo, dump));
-        
-        ResponseInfo responseInfo = ResponseInfoFactory
-				.createResponseInfoFromRequestInfo(transactionRequest.getRequestInfo(), true);
-		TransactionCreateResponse response = new TransactionCreateResponse(responseInfo, transaction,otherDeatils);
-		return response;
 
-//        return transaction;
+        return transaction;
     }
 
 

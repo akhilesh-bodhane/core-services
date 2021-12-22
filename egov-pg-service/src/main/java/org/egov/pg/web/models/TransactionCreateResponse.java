@@ -1,18 +1,10 @@
 package org.egov.pg.web.models;
 
-import java.util.Map;
-
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.egov.pg.models.Transaction;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import javax.validation.Valid;
 
 @Getter
 @Setter
@@ -28,8 +20,4 @@ public class TransactionCreateResponse {
     @JsonProperty("Transaction")
     @Valid
     private Transaction transaction;
-    
-    @JsonProperty("Other")
-    private Map<String, String> other;
-
 }

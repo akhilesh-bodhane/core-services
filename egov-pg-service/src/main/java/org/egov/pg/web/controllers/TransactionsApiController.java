@@ -46,18 +46,12 @@ public class TransactionsApiController {
      */
     @RequestMapping(value = "/transaction/v1/_create", method = RequestMethod.POST)
     public ResponseEntity<TransactionCreateResponse> transactionsV1CreatePost(@Valid @RequestBody TransactionRequest transactionRequest) {
-    	
-    	log.info("transactionsV1CreatePost() Create Request : " + transactionRequest);
-    	
-//        Transaction transaction = transactionService.initiateTransaction(transactionRequest);
-//        ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(transactionRequest
-//                .getRequestInfo(), true);
-//        TransactionCreateResponse response = new TransactionCreateResponse(responseInfo, transaction);
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-    	TransactionCreateResponse response = transactionService.initiateTransaction(transactionRequest);
 
-		log.info("transactionsV1CreatePost() Create Response : " + response);
-		return new ResponseEntity<>(response, HttpStatus.OK);
+        Transaction transaction = transactionService.initiateTransaction(transactionRequest);
+        ResponseInfo responseInfo = ResponseInfoFactory.createResponseInfoFromRequestInfo(transactionRequest
+                .getRequestInfo(), true);
+        TransactionCreateResponse response = new TransactionCreateResponse(responseInfo, transaction);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 

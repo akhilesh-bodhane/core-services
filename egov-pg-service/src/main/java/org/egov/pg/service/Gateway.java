@@ -1,10 +1,9 @@
 package org.egov.pg.service;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.egov.pg.models.Transaction;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
  * Gateway operations
@@ -56,8 +55,4 @@ public interface Gateway {
      * @return Transaction ID
      */
     String transactionIdKeyInResponse();
-    
-    default Map<String, String> generateRedirectParameter(Transaction transaction){
-		return new HashMap<>();
-	}
 }
