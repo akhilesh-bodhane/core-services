@@ -108,9 +108,7 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 					}
 					
 				} else {
-					System.out.println(artifact.getMultipartFile().getContentType() + "Keshav1");
 					upload(container, fileNameWithPath, artifact.getMultipartFile(), null, null);
-					System.out.println("Keshav2");
 				}
 				for (ListBlobItem blobItem : container.listBlobs())
 					log.info("URI of blob is: " + blobItem.getStorageUri().getPrimaryUri());
@@ -247,16 +245,13 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 	public void upload(CloudBlobContainer container, String completePath, MultipartFile file, BufferedImage image, String extension) {
 		try{
 			if(null == file && null != image) {
-				System.out.println("Inside upload function : keshav3");
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				ImageIO.write(image, extension, os);
 				CloudBlockBlob blob = container.getBlockBlobReference(completePath);
 				blob.upload(new ByteArrayInputStream(os.toByteArray()), 8*1024*1024);
 			}else {
-				System.out.println("Inside else part upload function : keshav4");
 				CloudBlockBlob blob = container.getBlockBlobReference(completePath);
 				blob.upload(file.getInputStream(), file.getSize());
-				System.out.println("Inside else end part upload function : keshav5");
 			}
 
 		}catch(Exception e) {
