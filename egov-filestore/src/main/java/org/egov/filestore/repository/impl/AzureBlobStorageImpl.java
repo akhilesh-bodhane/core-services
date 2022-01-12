@@ -99,15 +99,18 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 				else
 					container = azureBlobClient.getContainerReference(containerName);
 				container.createIfNotExists(BlobContainerPublicAccessType.CONTAINER, new BlobRequestOptions(), new OperationContext());	
-				if(artifact.getMultipartFile().getContentType().startsWith("image/")) {
+				if(artifact.getMultipartFile().getContentType().startsWith("image/") && !artifact.getMultipartFile().getContentType().contains("svg")) {
 					String extension = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
 					Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(artifact.getMultipartFile(), fileNameWithPath);
 					for(String key: mapOfImagesAndPaths.keySet()) {
 						upload(container, key, null, mapOfImagesAndPaths.get(key), extension);
 						mapOfImagesAndPaths.get(key).flush();
 					}
-				}else {
+					
+				} else {
+					System.out.println(artifact.getMultipartFile().getContentType() + "Keshav1");
 					upload(container, fileNameWithPath, artifact.getMultipartFile(), null, null);
+					System.out.println("Keshav2");
 				}
 				for (ListBlobItem blobItem : container.listBlobs())
 					log.info("URI of blob is: " + blobItem.getStorageUri().getPrimaryUri());
@@ -244,18 +247,23 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 	public void upload(CloudBlobContainer container, String completePath, MultipartFile file, BufferedImage image, String extension) {
 		try{
 			if(null == file && null != image) {
+				System.out.println("Inside upload function : keshav3);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				ImageIO.write(image, extension, os);
 				CloudBlockBlob blob = container.getBlockBlobReference(completePath);
 				blob.upload(new ByteArrayInputStream(os.toByteArray()), 8*1024*1024);
 			}else {
+				System.out.println("Inside else part upload function : keshav4);
 				CloudBlockBlob blob = container.getBlockBlobReference(completePath);
 				blob.upload(file.getInputStream(), file.getSize());
+				System.out.println("Inside else end part upload function : keshav5);
 			}
 
 		}catch(Exception e) {
+			e.printStackTrace();
 			log.error("Exception while uploading the file: ",e);
 		}
+						  
 	}
 	
 	
