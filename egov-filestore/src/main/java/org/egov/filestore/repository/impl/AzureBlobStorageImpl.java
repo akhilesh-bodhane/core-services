@@ -100,7 +100,11 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 					container = azureBlobClient.getContainerReference(containerName);
 				container.createIfNotExists(BlobContainerPublicAccessType.CONTAINER, new BlobRequestOptions(), new OperationContext());	
 				if(artifact.getMultipartFile().getContentType().startsWith("image/") && !artifact.getMultipartFile().getContentType().contains("svg")) {
+					System.out.println("Content Type" + artifact.getMultipartFile().getContentType());
 					String extension = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
+					System.out.println("Extension" + extension);
+					System.out.println("Multipart File" + artifact.getMultipartFile());
+					System.out.println("fileNameWithPath" + fileNameWithPath);
 					Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(artifact.getMultipartFile(), fileNameWithPath);
 					for(String key: mapOfImagesAndPaths.keySet()) {
 						upload(container, key, null, mapOfImagesAndPaths.get(key), extension);
