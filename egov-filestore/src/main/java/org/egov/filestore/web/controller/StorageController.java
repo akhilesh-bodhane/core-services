@@ -87,7 +87,8 @@ public class StorageController {
 			@RequestParam(value = "tenantId") String tenantId,
 			@RequestParam(value = "module", required = true) String module,
 			@RequestParam(value = "tag", required = false) String tag) {
-		
+		System.out.println("Inside storeFiles Method");
+		System.out.println("Files : " + files);
 		final List<String> fileStoreIds = storageService.save(files, module, tag, tenantId);
 		return getStorageResponse(fileStoreIds, tenantId);
 	}
