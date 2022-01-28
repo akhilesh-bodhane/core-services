@@ -67,8 +67,9 @@ public class CloudFileMgrUtils {
 			BufferedImage originalImage = ImageIO.read(file.getInputStream());
 			System.out.println("File : " + file.toString());
 			System.out.println("File input Stream : " + file.getInputStream().read());
+			System.out.println("Original Image : " + originalImage);
 			if (null == originalImage) {
-				System.out.println("Original Image" + originalImage);
+				System.out.println("Original Image : " + originalImage);
 				Map<String, String> map = new HashMap<>();
 				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
 				throw new CustomException(map);
