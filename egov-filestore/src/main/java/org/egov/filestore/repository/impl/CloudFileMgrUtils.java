@@ -65,6 +65,7 @@ public class CloudFileMgrUtils {
 		Map<String, BufferedImage> mapOfImagesAndPaths = new HashMap<>();
 		try {
 			BufferedImage originalImage = ImageIO.read(file.getInputStream());
+			System.out.println("File input Stream : " + file.getInputStream());
 			if (null == originalImage) {
 				System.out.println("Original Image" + originalImage);
 				Map<String, String> map = new HashMap<>();
