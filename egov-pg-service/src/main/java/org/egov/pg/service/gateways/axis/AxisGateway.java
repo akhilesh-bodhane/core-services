@@ -88,12 +88,13 @@ public class AxisGateway implements Gateway {
 		System.out.println("generateRedirectParameter Transaction Parameters : " + transaction.toString());
 		try {
 			  JSONObject orderRequest = new JSONObject();
+			  System.out.println("Order Request 1 : " + orderRequest.toString());
 			  orderRequest.put(AMOUNT, Utils.formatAmtAsRupee(transaction.getTxnAmount()));
 			  orderRequest.put(CURRENCY_STR, CURRENCY);
 			  orderRequest.put(RECEIPT, transaction.getTxnId());
 			  Order order = razorpay.Orders.create(orderRequest);
 			  
-			  System.out.println("Order Request : " + orderRequest.toString());
+			  System.out.println("Order Request 2 : " + orderRequest.toString());
 			  System.out.println("Order : " + order.toString());
 			  
 			  responce.put(AMOUNT, Utils.formatAmtAsRupee(transaction.getTxnAmount()));
