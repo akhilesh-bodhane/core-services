@@ -83,13 +83,13 @@ public class AxisGateway implements Gateway {
 	}
 	
 	@Override
-	public Map<String, Object> generateRedirectParameter(Transaction transaction) {
+	public Map<String, ?> generateRedirectParameter(Transaction transaction) {
 		Map<String, Object> responce=new HashMap<>();
 		System.out.println("generateRedirectParameter Transaction Parameters : " + transaction.toString());
 		try {
 			  JSONObject orderRequest = new JSONObject();
 			  System.out.println("Order Request 1 : " + orderRequest.toString());
-			  orderRequest.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount()));
+			  orderRequest.put(AMOUNT, Integer.valueOf(Utils.formatAmtAsRupee(transaction.getTxnAmount())));
 			  orderRequest.put(CURRENCY_STR, CURRENCY);
 			  orderRequest.put(RECEIPT, transaction.getTxnId());
 			  Order order = razorpay.Orders.create(orderRequest);
@@ -97,8 +97,7 @@ public class AxisGateway implements Gateway {
 			  System.out.println("Order Request 2 : " + orderRequest.toString());
 			  System.out.println("Order : " + order.toString());
 			  
-			  //responce.put(AMOUNT, Utils.formatAmtAsRupee(transaction.getTxnAmount()));
-			  responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount()));
+			  responce.put(AMOUNT, Integer.valueOf(Utils.formatAmtAsRupee(transaction.getTxnAmount())));
 			  responce.put(KEY, KEY_ID);
 			  responce.put(ORDER_ID, order.get("id"));
 			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());

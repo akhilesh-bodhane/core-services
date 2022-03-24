@@ -76,7 +76,7 @@ public class GatewayService {
 		return gateway.generateRedirectURI(transaction);
 	}
 	
-	Map<String, Object> initiateTxnV2(Transaction transaction) {
+	Map<String, ?> initiateTxnV2(Transaction transaction) {
 		if (!isGatewayActive(transaction.getGateway()))
 			throw new CustomException("INVALID_PAYMENT_GATEWAY", "Invalid or inactive payment gateway provided");
 

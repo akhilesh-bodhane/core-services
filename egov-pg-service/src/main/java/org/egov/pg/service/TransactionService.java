@@ -84,7 +84,8 @@ public class TransactionService {
 		TransactionDump dump = TransactionDump.builder().txnId(transaction.getTxnId())
 				.auditDetails(transaction.getAuditDetails()).build();
 		
-		Map<String, String> otherDeatils=null;
+		//Map<String, String> otherDeatils=null;
+		Map<String, ?> otherDeatils=null;
 		if (validator.skipGateway(transaction)) {
 			transaction.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
 			paymentsService.registerPayment(transactionRequest);

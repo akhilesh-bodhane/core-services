@@ -24,6 +24,10 @@ public class TransactionCreateResponse {
     @Valid
     private Transaction transaction;
     
+	/*
+	 * @JsonProperty("Other") private Map<String, String> other;
+	 */
+    
     @JsonProperty("Other")
-    private Map<String, String> other;
+    private Map<String, ?> other;
 }
