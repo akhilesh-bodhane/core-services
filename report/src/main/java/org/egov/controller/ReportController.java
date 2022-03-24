@@ -174,7 +174,7 @@ public class ReportController {
     @PostMapping("/{moduleName}/Integrate-es/_get")
     @ResponseBody
     public ResponseEntity<?> getReportDatav3(@PathVariable("moduleName") String moduleName, @RequestBody @Valid final ReportRequest reportRequest,
-    		 @Valid @RequestBody ListReportDefination ListReportDefination ,final BindingResult errors ) {
+    		 final BindingResult errors ) {
     	
     
 	 List<String> list=new ArrayList<String>(); 
