@@ -171,7 +171,44 @@ public class ReportController {
 	     return reportService.getReportDataSuccessResponse(listt, reportRequest.getRequestInfo(), reportRequest.getTenantId());
     }	
 
-
+    @PostMapping("/{moduleName}/Integrate-es/_get")
+    @ResponseBody
+    public ResponseEntity<?> getReportDatav3(@PathVariable("moduleName") String moduleName, @RequestBody @Valid final ReportRequest reportRequest,
+    		 @Valid @RequestBody ListReportDefination ListReportDefination ,final BindingResult errors ) {
+    	
+    
+	 List<String> list=new ArrayList<String>(); 
+	 List<ReportResponse> listt=new ArrayList<ReportResponse>(); 
+//	 List<AAABCDFG> listReportDefination2 = ListReportDefination.getListReportDefination();
+//	 List<ListReportDefination> listtt= ListReportDefination.getListReportDefination();
+	 List<ReportResponse> reportResponse = new ArrayList<ReportResponse>(); 
+	 //Adding elements in the List  
+	 list.add("ESCollectionReport");  
+	 list.add("EstateRentCollectionReport");  
+	 list.add("EstatePenaltyCollectionReport");  
+	 list.add("EstateExtensionFeeCollectionReport");
+	 list.add("EstateSecurityDepositCollectionReport");  
+	 list.add("EstateRentDueReport"); 
+	 
+//	ListReportDefination.getListReportDefination().
+	 for (int i = 0; i < list.size(); i++) {
+		 
+		 reportRequest.setReportName(list.get(i))  ;
+	 
+        try {
+           reportResponse = reportService.getAllReportData(reportRequest, moduleName, reportRequest.getRequestInfo().getAuthToken());
+         
+//            return reportService.getReportDataSuccessResponse(reportResponse, reportRequest.getRequestInfo(), reportRequest.getTenantId());
+        } catch (Exception e) {
+            log.error("Error in getting Report data ver1", e);
+            throw new CustomException("ERROR_IN_RETRIEVING_REPORT_DATA", e.getMessage());
+        }
+        listt.addAll(reportResponse);
+	 }
+//	 reportResponse = reportService.getAllReportData1(reportRequest, moduleName, reportRequest.getRequestInfo().getAuthToken());
+     return reportService.getReportDataSuccessResponse(listt, reportRequest.getRequestInfo(), reportRequest.getTenantId());
+    }
+	
     @PostMapping("{moduleName}/{version}/_reload")
     @ResponseBody
     public ResponseEntity<?> reloadYamlDatav1(@PathVariable("moduleName") String moduleName, @RequestBody @Valid final MetaDataRequest reportRequest,
