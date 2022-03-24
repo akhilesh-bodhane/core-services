@@ -71,7 +71,11 @@ public interface Gateway {
 
 	RefundTransaction fetchRefundStatus(RefundTransaction currentStatus);
 
-	default Map<String, String> generateRedirectParameter(Transaction transaction){
+	/*
+	 * default Map<String, String> generateRedirectParameter(Transaction
+	 * transaction){ return new HashMap<>(); }
+	 */
+	default Map<String, Object> generateRedirectParameter(Transaction transaction){
 		return new HashMap<>();
 	}
 }
