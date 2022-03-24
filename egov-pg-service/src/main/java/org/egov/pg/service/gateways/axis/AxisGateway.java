@@ -87,7 +87,7 @@ public class AxisGateway implements Gateway {
 		Map<String, Object> responce=new HashMap<>();
 		System.out.println("Transaction Parameters : " + transaction.toString());
 		try {
-			  Integer amt = Integer.valueOf(transaction.getTxnAmount()) * 100;
+			  Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
 			  System.out.println("Amount : " + transaction.getTxnAmount());
 			  JSONObject orderRequest = new JSONObject();
 			  orderRequest.put(AMOUNT, amt); 

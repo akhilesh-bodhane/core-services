@@ -120,7 +120,8 @@ public class TransactionValidator {
 		}
 
 		if (newStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.SUCCESS)) {
-			if (new BigDecimal(prevStatus.getTxnAmount()).compareTo(new BigDecimal(newStatus.getTxnAmount())) == 0) {
+			Integer prevAmt = Integer.valueOf(prevStatus.getTxnAmount()) * 100;
+			if (new BigDecimal(prevAmt).compareTo(new BigDecimal(newStatus.getTxnAmount())) == 0) {
 				newStatus.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
 				newStatus.setTxnStatusMsg(PgConstants.TXN_SUCCESS);
 				return true;
