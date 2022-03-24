@@ -105,7 +105,7 @@ public class AxisGateway implements Gateway {
 			  responce.put(ORDER_ID, order.get("id"));
 			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			  responce.put("description", transaction.getModule());
-			  
+			  transaction.setGatewayTxnId(order.get("id"));
 			  System.out.println("Response : " + responce.toString());
 			  
 			} catch (RazorpayException e) {
@@ -128,19 +128,44 @@ public class AxisGateway implements Gateway {
 	}
 		
 	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
-		if("captured".equals(params.get("status"))) {
-			return Transaction.builder().txnId(currentStatus.getTxnId())
-					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.FAILURE)
-					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
-					.gatewayStatusCode("")
-					.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
-		}else {
-			return Transaction.builder().txnId(currentStatus.getTxnId())
-					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.SUCCESS)
-					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
-					.gatewayStatusCode("")
-					.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
-		}
+		
+		try {
+			  Order order = razorpay.Orders.fetch(params.get("razorpay_order_id"));
+			  
+			  if("paid".equals(order.get("status"))) {
+				  return Transaction.builder().txnId(currentStatus.getTxnId())
+							.txnAmount(order.get("amount_paid")).txnStatus(TxnStatusEnum.SUCCESS)
+							.gatewayTxnId(order.get("id")).gatewayPaymentMode(params.get("method"))
+							.gatewayStatusCode("")
+							.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
+			  }else if("attempted".equals(order.get("status"))) {
+				  return Transaction.builder().txnId(currentStatus.getTxnId())
+							.txnAmount(order.get("amount_paid")).txnStatus(TxnStatusEnum.FAILURE)
+							.gatewayTxnId(order.get("id")).gatewayPaymentMode(order.get("method"))
+							.gatewayStatusCode("")
+							.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
+			  }
+			  
+			  return currentStatus;
+			  
+			} catch (RazorpayException e) {
+			  e.printStackTrace();
+			  throw new RuntimeException(e);
+			}
+		
+//		if("captured".equals(params.get("status"))) {
+//			return Transaction.builder().txnId(currentStatus.getTxnId())
+//					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.FAILURE)
+//					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
+//					.gatewayStatusCode("")
+//					.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
+//		}else {
+//			return Transaction.builder().txnId(currentStatus.getTxnId())
+//					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.SUCCESS)
+//					.gatewayTxnId(params.get("id")).gatewayPaymentMode(params.get("method"))
+//					.gatewayStatusCode("")
+//					.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
+//		}
 		
 	}
 
