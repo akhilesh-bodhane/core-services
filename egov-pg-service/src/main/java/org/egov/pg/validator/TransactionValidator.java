@@ -120,24 +120,46 @@ public class TransactionValidator {
 		}
 
 		if (newStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.SUCCESS)) {
-			Double prevAmt = Double.valueOf(prevStatus.getTxnAmount());
-			prevAmt = prevAmt * 100;
+			boolean txnStatus = false;
 			
-			System.out.println("New Status : " + newStatus.getTxnAmount());
-			System.out.println("Previous Status : " + prevAmt);
+			System.out.println("Prev Status Gateway : " + prevStatus.getGateway());
+			System.out.println("New Status Gateway : " + newStatus.getGateway());
 			
-			if (new BigDecimal(prevAmt).compareTo(new BigDecimal(newStatus.getTxnAmount())) == 0) {
-				newStatus.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
-				newStatus.setTxnStatusMsg(PgConstants.TXN_SUCCESS);
-				return true;
-			} else {
-				log.error("Transaction Amount mismatch, expected {} got {}", prevStatus.getTxnAmount(),
-						newStatus.getTxnAmount());
-				newStatus.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
-				newStatus.setTxnStatusMsg(PgConstants.TXN_FAILURE_AMT_MISMATCH);
-				return false;
-			}
+			if(prevStatus.getGateway().equals("AXIS") || newStatus.getGateway().equals("AXIS")) {
+				Double prevAmt = Double.valueOf(prevStatus.getTxnAmount());
+				prevAmt = prevAmt * 100;
+
+				System.out.println("New Status : " + newStatus.getTxnAmount());
+				System.out.println("Previous Status : " + prevAmt);
+
+				if (new BigDecimal(prevAmt).compareTo(new BigDecimal(newStatus.getTxnAmount())) == 0) {
+					newStatus.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
+					newStatus.setTxnStatusMsg(PgConstants.TXN_SUCCESS);
+					txnStatus = true;
+				} else {
+					log.error("Transaction Amount mismatch, expected {} got {}", prevStatus.getTxnAmount(),
+							newStatus.getTxnAmount());
+					newStatus.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
+					newStatus.setTxnStatusMsg(PgConstants.TXN_FAILURE_AMT_MISMATCH);
+					txnStatus = false;
+				}
+				
+			} else if(prevStatus.getGateway().equals("PAYTM") || newStatus.getGateway().equals("PAYTM")) {
+				if (new BigDecimal(prevStatus.getTxnAmount()).compareTo(new BigDecimal(newStatus.getTxnAmount())) == 0) {
+					newStatus.setTxnStatus(Transaction.TxnStatusEnum.SUCCESS);
+					newStatus.setTxnStatusMsg(PgConstants.TXN_SUCCESS);
+					txnStatus = true;
+				} else {
+					log.error("Transaction Amount mismatch, expected {} got {}", prevStatus.getTxnAmount(),
+							newStatus.getTxnAmount());
+					newStatus.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
+					newStatus.setTxnStatusMsg(PgConstants.TXN_FAILURE_AMT_MISMATCH);
+					txnStatus = false;
+				}
+		    }
+			return txnStatus;
 		}
+		 
 		else if (newStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING)) {
 			newStatus.setTxnStatusMsg(PgConstants.TXN_PENDING);
 			return false;
