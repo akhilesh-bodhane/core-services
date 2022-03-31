@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.egov.pg.constants.PgConstants;
 import org.egov.pg.models.RefundTransaction;
 import org.egov.pg.models.Transaction;
 import org.egov.pg.models.Transaction.TxnStatusEnum;
@@ -40,6 +41,7 @@ public class AxisGateway implements Gateway {
 	private static final String KEY="key";
 	private static final String ORDER_ID="order_id";
 	private static final String CALLBACK_URL="callback_url";
+	private static final String FAILURE="FAILURE";
 	
 	private final boolean ACTIVE;
 	private final String CURRENCY;
@@ -106,6 +108,7 @@ public class AxisGateway implements Gateway {
 			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			  responce.put("description", transaction.getModule());
 			  transaction.setGatewayTxnId(order.get("id"));
+			  transaction.setTxnStatus(TxnStatusEnum.FAILURE);
 			  System.out.println("Response : " + responce.toString());
 			  
 			} catch (RazorpayException e) {
