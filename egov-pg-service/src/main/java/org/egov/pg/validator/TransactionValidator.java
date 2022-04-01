@@ -188,9 +188,14 @@ public class TransactionValidator {
 
 		for (Transaction curr : existingTxnsForBill) {
 			if (curr.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING)) {
-					errorMap.put("TXN_ABRUPTLY_DISCARDED",
-							"A transaction for this bill has been abruptly discarded, please retry after "
-							  + (props.getEarlyReconcileJobRunInterval() * 2) + " mins");
+				
+				/*
+				 * errorMap.put("TXN_ABRUPTLY_DISCARDED",
+				 * "A transaction for this bill has been abruptly discarded, please retry after "
+				 * + (props.getEarlyReconcileJobRunInterval() * 2) + " mins");
+				 */
+				  errorMap.put("TXN_ABRUPTLY_DISCARDED",
+				  "A transaction for this bill has been abruptly discarded, please retry after 30 mins");
 				
 				} 
 			if (curr.getTxnStatus().equals(Transaction.TxnStatusEnum.SUCCESS)) {
