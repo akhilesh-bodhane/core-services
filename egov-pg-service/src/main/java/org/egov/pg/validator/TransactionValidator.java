@@ -193,8 +193,16 @@ public class TransactionValidator {
 				 * "A transaction for this bill has been abruptly discarded, please retry after "
 				 * + (props.getEarlyReconcileJobRunInterval() * 2) + " mins");
 				 */
-				errorMap.put("TXN_ABRUPTLY_DISCARDED",
-						"Your payment has currently failed. Please try after sometime. Kindly call 0172 2787200 for any support.");
+				System.out.println("Gateway : " + transactionRequest.getTransaction().getGateway());
+				if(transactionRequest.getTransaction().getGateway().equals("AXIS")) {
+					errorMap.put("TXN_ABRUPTLY_DISCARDED",
+							"Your payment has currently failed. Please try after sometime. Kindly call 0172 2787200 for any support.");
+				} else {
+					errorMap.put("TXN_ABRUPTLY_DISCARDED",
+							"A transaction for this bill has been abruptly discarded, please retry after "
+							  + (props.getEarlyReconcileJobRunInterval() * 2) + " mins");
+				}
+				
 			}
 			if (curr.getTxnStatus().equals(Transaction.TxnStatusEnum.SUCCESS)) {
 				errorMap.put("TXN_CREATE_BILL_ALREADY_PAID", "Bill has already been paid or is in pending state");
