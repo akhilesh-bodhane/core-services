@@ -70,6 +70,8 @@ public class EarlyReconciliationJob implements Job {
         for (Transaction txn : pendingTxns) {
         	System.out.println("Early Recon Transaction Id : " + txn.getTxnId().toString());
         	System.out.println("Early Recon Razor Pay Id : " + txn.getGatewayTxnId().toString());
+        	System.out.println("Early Recon Gateway : " + txn.getGateway().toString());
+        	
         	if(txn.getGateway().equals("PAYTM")) {
         		log.info(transactionService.updateTransaction(requestInfo, Collections.singletonMap(PgConstants.PG_TXN_IN_LABEL, txn
                         .getTxnId
