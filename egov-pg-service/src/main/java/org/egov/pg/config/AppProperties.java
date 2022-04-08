@@ -18,10 +18,16 @@ public class AppProperties {
 	private final String saveTxnTopic;
 
 	private final String updateTxnTopic;
+	
+	//Added for axis bank recon update
+	private final String updateTxnTopicAxis;
 
 	private final String saveTxnDumpTopic;
 
 	private final String updateTxnDumpTopic;
+	
+	//Added for axis bank recon update
+	private final String updateTxnDumpTopicAxis;
 
 	private final String saveRefundTxnTopic;
 
@@ -55,8 +61,10 @@ public class AppProperties {
 				.valueOf(environment.getRequiredProperty("pg.earlyReconcileJobRunInterval.mins"));
 		this.saveTxnTopic = environment.getRequiredProperty("persister.save.pg.txns");
 		this.updateTxnTopic = environment.getRequiredProperty("persister.update.pg.txns");
+		this.updateTxnTopicAxis = environment.getRequiredProperty("persister.update.pg.txns.axis");
 		this.saveTxnDumpTopic = environment.getRequiredProperty("persister.save.pg.txnsDump");
 		this.updateTxnDumpTopic = environment.getRequiredProperty("persister.update.pg.txnsDump");
+		this.updateTxnDumpTopicAxis = environment.getRequiredProperty("persister.update.pg.txnsDump.axis");
 		this.idGenHost = environment.getRequiredProperty("egov.idgen.host");
 		this.idGenPath = environment.getRequiredProperty("egov.idgen.path");
 		this.idGenName = environment.getRequiredProperty("egov.idgen.ack.name");

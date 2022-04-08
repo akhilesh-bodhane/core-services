@@ -109,6 +109,27 @@ public class TransactionValidator {
 
 		return statuses.get(0);
 	}
+	
+	//Added for Axis Bank Reconciliation 
+	public Transaction validateUpdateTxnAxis(Map<String, String> requestParams) {
+
+		Optional<String> optional = gatewayService.getTxnId(requestParams);
+
+		if (!optional.isPresent())
+			throw new CustomException("MISSING_UPDATE_TXN_ID", "Cannot process request, missing transaction id");
+
+		TransactionCriteria criteria = TransactionCriteria.builder().gatewayTxnId(optional.get()).build();
+
+		List<Transaction> statuses = transactionRepository.fetchTransactions(criteria);
+
+		// TODO Add to error queue
+		System.out.println("Fetch Transactions AXIS : " + statuses.toString());
+		if (statuses.isEmpty()) {
+			throw new CustomException("TXN_UPDATE_NOT_FOUND", "Transaction not found");
+		}
+
+		return statuses.get(0);
+	}
 
 	public boolean skipGateway(Transaction transaction) {
 		return new BigDecimal(transaction.getTxnAmount()).compareTo(BigDecimal.ZERO) == 0;

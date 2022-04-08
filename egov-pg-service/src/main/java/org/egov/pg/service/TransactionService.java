@@ -180,6 +180,43 @@ public class TransactionService {
 
 		return Collections.singletonList(newTxn);
 	}
+	
+	//Added For Axis Bank Reconciliation
+	public List<Transaction> updateTransactionAxis(RequestInfo requestInfo, Map<String, String> requestParams) {
+
+		Transaction currentTxnStatus = validator.validateUpdateTxnAxis(requestParams);
+
+		log.debug(currentTxnStatus.toString());
+		log.debug(requestParams.toString());
+
+		Transaction newTxn = null;
+
+		if (validator.skipGateway(currentTxnStatus)) {
+			newTxn = currentTxnStatus;
+
+		} else {
+			newTxn = gatewayService.getLiveStatus(currentTxnStatus, requestParams);
+
+			// Enrich the new transaction status before persisting
+			enrichmentService.enrichUpdateTransaction(new TransactionRequest(requestInfo, currentTxnStatus), newTxn);
+		}
+
+		// Check if transaction is successful, amount matches etc
+		if (validator.shouldGenerateReceipt(currentTxnStatus, newTxn)) {
+			TransactionRequest request = TransactionRequest.builder().requestInfo(requestInfo).transaction(newTxn)
+					.build();
+			paymentsService.registerPayment(request);
+		}
+
+		TransactionDump dump = TransactionDump.builder().txnId(currentTxnStatus.getTxnId())
+				.txnResponse(newTxn.getResponseJson()).auditDetails(newTxn.getAuditDetails()).build();
+
+		producer.push(appProperties.getUpdateTxnTopicAxis(),
+				new org.egov.pg.models.TransactionRequest(requestInfo, newTxn));
+		producer.push(appProperties.getUpdateTxnDumpTopic(), new TransactionDumpRequest(requestInfo, dump));
+
+		return Collections.singletonList(newTxn);
+	}
 
 	public List<RefundTransaction> initiateRefundTransaction(RefundTransactionRequest transactionRequest) {
 		Map<String, String> requestParams = new HashMap<>();

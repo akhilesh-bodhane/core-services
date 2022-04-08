@@ -91,6 +91,7 @@ public class EnrichmentService {
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 
+		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
 		newTxn.setGateway(currentTxnStatus.getGateway());
 		newTxn.setBillId(currentTxnStatus.getBillId());
