@@ -96,6 +96,9 @@ public class TransactionsApiController {
 	@RequestMapping(value = "/transaction/v1/_update", method = { RequestMethod.POST, RequestMethod.GET })
 	public ResponseEntity<TransactionResponse> transactionsV1UpdatePost(
 			@RequestBody RequestInfoWrapper requestInfoWrapper, @RequestParam Map<String, String> params) {
+		
+		System.out.println("Update Method Parameters : " + params.toString());
+		
 		List<Transaction> transactions = transactionService.updateTransaction(requestInfoWrapper.getRequestInfo(),
 				params);
 		ResponseInfo responseInfo = ResponseInfoFactory
