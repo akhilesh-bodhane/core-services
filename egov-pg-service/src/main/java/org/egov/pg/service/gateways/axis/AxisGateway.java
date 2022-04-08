@@ -108,7 +108,7 @@ public class AxisGateway implements Gateway {
 			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			  responce.put("description", transaction.getModule());
 			  transaction.setGatewayTxnId(order.get("id"));
-			  transaction.setTxnStatus(TxnStatusEnum.FAILURE);
+			  transaction.setTxnStatus(TxnStatusEnum.PENDING);
 			  System.out.println("Response : " + responce.toString());
 			  
 			} catch (RazorpayException e) {
