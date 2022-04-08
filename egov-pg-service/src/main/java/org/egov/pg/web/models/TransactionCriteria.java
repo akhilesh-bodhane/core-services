@@ -36,5 +36,7 @@ public class TransactionCriteria {
 
     @JsonIgnore
     private int offset;
+    
+    private String gatewayTxnId;
 
 }

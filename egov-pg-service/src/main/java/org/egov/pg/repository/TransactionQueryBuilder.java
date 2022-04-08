@@ -104,6 +104,11 @@ class TransactionQueryBuilder {
         if (!Objects.isNull(transactionCriteria.getReceipt())) {
             queryParams.put("pg.receipt", transactionCriteria.getReceipt());
         }
+        
+        //Added to serach via razor pay id
+        if (!Objects.isNull(transactionCriteria.getGatewayTxnId())) {
+            queryParams.put("pg.gateway_txn_id", transactionCriteria.getGatewayTxnId());
+        }
 
 
 
