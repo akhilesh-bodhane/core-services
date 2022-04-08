@@ -56,9 +56,13 @@ public class DailyReconciliationJob implements Job {
                 System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(appProperties.getEarlyReconcileJobRunInterval
                         () * 2));
 
+        System.out.println("Daily Pending Transaction : " + pendingTxns.toString());
+        
         log.info("Attempting to reconcile {} pending transactions", pendingTxns.size());
 
         for (Transaction txn : pendingTxns) {
+        	System.out.println("Daily Recon Transaction Id : " + txn.getTxnId().toString());
+        	System.out.println("Daily Recon Razor Pay Id : " + txn.getGatewayTxnId().toString());
             log.info(transactionService.updateTransaction(requestInfo, Collections.singletonMap(PgConstants.PG_TXN_IN_LABEL, txn
                     .getTxnId
                     ())).toString());

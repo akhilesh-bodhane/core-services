@@ -63,11 +63,13 @@ public class EarlyReconciliationJob implements Job {
                 System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(startTime),
                 System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(endTime));
         
-        System.out.println("Pending Transaction : " + pendingTxns.toString());
+        System.out.println("Early Pending Transaction : " + pendingTxns.toString());
 
         log.info("Attempting to reconcile {} pending transactions", pendingTxns.size());
 
         for (Transaction txn : pendingTxns) {
+        	System.out.println("Early Recon Transaction Id : " + txn.getTxnId().toString());
+        	System.out.println("Early Recon Razor Pay Id : " + txn.getGatewayTxnId().toString());
             log.info(transactionService.updateTransaction(requestInfo, Collections.singletonMap(PgConstants.PG_TXN_IN_LABEL, txn
                     .getTxnId
                     ())).toString());
