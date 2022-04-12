@@ -216,7 +216,7 @@ public class TransactionValidator {
 				 * + (props.getEarlyReconcileJobRunInterval() * 2) + " mins");
 				 */
 				  errorMap.put("TXN_ABRUPTLY_DISCARDED",
-				  "A transaction for this bill has been abruptly discarded, please retry after 30 mins");
+				  "A transaction for this bill has been abruptly discarded, please retry after 75 mins");
 				
 				} 
 			if (curr.getTxnStatus().equals(Transaction.TxnStatusEnum.SUCCESS)) {
