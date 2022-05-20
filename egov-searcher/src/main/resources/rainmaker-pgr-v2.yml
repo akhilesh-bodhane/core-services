@@ -28,11 +28,11 @@ SearchDefinitions:
     - name: status
       isMandatory: false
       jsonPath: $.searchCriteria.status
-    - name: createdtime
+    - name: startdate
       isMandatory: false
       operator: GE
       jsonPath: $.searchCriteria.startDate
-    - name: createdtime
+    - name: enddate
       isMandatory: false
       operator: LE
       jsonPath: $.searchCriteria.endDate
