@@ -48,11 +48,15 @@ public class AxisGateway implements Gateway {
 	private final String MERCHANT_ID;
 	private final String KEY_ID;
 	private final String KEY_SECRET;
+	private final String WATER_KEY_ID;
+	private final String SEWERAGE_KEY_ID;
+	private final String WATERTANKER_KEY_ID;
+	private final String OPMS_KEY_ID;
 
 	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
 	private RazorpayClient razorpay;
-
+	private Transaction transaction;
 	/**
 	 * Initialize by populating all required config parameters
 	 *
@@ -62,18 +66,43 @@ public class AxisGateway implements Gateway {
 	 *            containing all required config parameters
 	 */
 	@Autowired
-	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
+	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper,Transaction transaction) {
+		System.out.println("Transaction Parameters AxisGateway : " + transaction.toString());
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
-		
+		this.transaction = transaction;
+		String module= transaction.getModule();
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
 		KEY_ID = environment.getRequiredProperty("axis.key.id");
 		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
+		WATER_KEY_ID = environment.getRequiredProperty("axis.key.id.water");
+		SEWERAGE_KEY_ID = environment.getRequiredProperty("axis.key.id.sewerage");
+		WATERTANKER_KEY_ID = environment.getRequiredProperty("axis.key.id.watertanker");
+		OPMS_KEY_ID = environment.getRequiredProperty("axis.key.id.opms");
 		
+		System.out.println("WATER_KEY_ID: " + WATER_KEY_ID);
+		System.out.println("SEWERAGE_KEY_ID: " + SEWERAGE_KEY_ID);
+		System.out.println("WATERTANKER_KEY_ID: " + WATERTANKER_KEY_ID);
+		System.out.println("OPMS_KEY_ID: " + OPMS_KEY_ID);
+				
 		try {
-			this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
+			 if("PUBLIC_HEALTH_SERVICES_DIV2".equalsIgnoreCase(module)) {
+				 this.razorpay=new RazorpayClient(WATER_KEY_ID, KEY_SECRET); 
+			}
+			 else if("PUBLIC_HEALTH_SERVICES_DIV4".equalsIgnoreCase(module)) {
+				  this.razorpay=new RazorpayClient(SEWERAGE_KEY_ID, KEY_SECRET); 
+			}
+			 else if("BWT".equalsIgnoreCase(module)) {
+				  this.razorpay=new RazorpayClient(WATERTANKER_KEY_ID, KEY_SECRET); 
+			 }
+			 else if(module.startsWith("OPMS")) {
+				   this.razorpay=new RazorpayClient(OPMS_KEY_ID, KEY_SECRET);
+			  }else {
+				  this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);	  
+			  }
+			//this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
 		} catch (RazorpayException e) {
 			throw new RuntimeException(e);
 		}
@@ -87,8 +116,9 @@ public class AxisGateway implements Gateway {
 	@Override
 	public Map<String, ?> generateRedirectParameter(Transaction transaction) {
 		Map<String, Object> responce=new HashMap<>();
-		System.out.println("Transaction Parameters : " + transaction.toString());
+		System.out.println("Transaction Parameters generateRedirectParameter method: " + transaction.toString());
 		try {
+			  String module= transaction.getModule();
 			  Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
 			  System.out.println("Amount : " + transaction.getTxnAmount());
 			  JSONObject orderRequest = new JSONObject();
@@ -103,7 +133,21 @@ public class AxisGateway implements Gateway {
 			  
 				/* responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount())); */
 			  responce.put(AMOUNT, amt);
-			  responce.put(KEY, KEY_ID);
+			  if("PUBLIC_HEALTH_SERVICES_DIV2".equalsIgnoreCase(module)) {
+			   responce.put(KEY, WATER_KEY_ID);  
+			  }
+			  else if("PUBLIC_HEALTH_SERVICES_DIV4".equalsIgnoreCase(module)) {
+			   responce.put(KEY, SEWERAGE_KEY_ID);  
+			  }
+			  else if("BWT".equalsIgnoreCase(module)) {
+				responce.put(KEY, WATERTANKER_KEY_ID);  
+			   }
+			  else if(module.startsWith("OPMS")) {
+				responce.put(KEY, OPMS_KEY_ID);  
+			   }else {
+				responce.put(KEY, KEY_ID);   
+			   }
+			  //responce.put(KEY, KEY_ID); 
 			  responce.put(ORDER_ID, order.get("id"));
 			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			  responce.put("description", transaction.getModule());
