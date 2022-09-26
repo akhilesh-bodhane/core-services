@@ -43,20 +43,31 @@ public class AxisGateway implements Gateway {
 	private static final String CALLBACK_URL="callback_url";
 	private static final String FAILURE="FAILURE";
 	
-	private final boolean ACTIVE;
-	private final String CURRENCY;
-	private final String MERCHANT_ID;
-	private final String KEY_ID;
-	private final String KEY_SECRET;
-	private final String WATER_KEY_ID;
-	private final String SEWERAGE_KEY_ID;
-	private final String WATERTANKER_KEY_ID;
-	private final String OPMS_KEY_ID;
+	private  boolean ACTIVE;
+	private  String CURRENCY;
+	private  String MERCHANT_ID;
+	private  String KEY_ID;
+	private  String KEY_SECRET;
+	private  String WATER_KEY_ID;
+	private  String SEWERAGE_KEY_ID;
+	private  String WATERTANKER_KEY_ID;
+	private  String OPMS_KEY_ID;
 
-	private final RestTemplate restTemplate;
+	private  RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
 	private RazorpayClient razorpay;
+	
 	private Transaction transaction;
+	
+	
+	public Transaction getTransaction() {
+		return this.transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
+	}
+
 	/**
 	 * Initialize by populating all required config parameters
 	 *
@@ -65,6 +76,13 @@ public class AxisGateway implements Gateway {
 	 * @param environment
 	 *            containing all required config parameters
 	 */
+	
+	
+	  public AxisGateway() {
+	  
+	  }
+	 
+	
 	@Autowired
 	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper,Transaction transaction) {
 		System.out.println("Transaction Parameters AxisGateway : " + transaction.toString());
@@ -72,6 +90,7 @@ public class AxisGateway implements Gateway {
 		this.objectMapper = objectMapper;
 		this.transaction = transaction;
 		String module= transaction.getModule();
+		System.out.println("module :: " + module);
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
