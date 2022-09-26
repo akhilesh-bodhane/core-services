@@ -43,30 +43,20 @@ public class AxisGateway implements Gateway {
 	private static final String CALLBACK_URL="callback_url";
 	private static final String FAILURE="FAILURE";
 	
-	private  boolean ACTIVE;
-	private  String CURRENCY;
-	private  String MERCHANT_ID;
-	private  String KEY_ID;
-	private  String KEY_SECRET;
-	private  String WATER_KEY_ID;
-	private  String SEWERAGE_KEY_ID;
-	private  String WATERTANKER_KEY_ID;
-	private  String OPMS_KEY_ID;
+	private final boolean ACTIVE;
+	private final String CURRENCY;
+	private final String MERCHANT_ID;
+	private final String KEY_ID;
+	private final String KEY_SECRET;
+	private final String WATER_KEY_ID;
+	private final String SEWERAGE_KEY_ID;
+	private final String WATERTANKER_KEY_ID;
+	private final String OPMS_KEY_ID;
 
-	private  RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
 	private RazorpayClient razorpay;
 	
-	private Transaction transaction;
-	
-	
-	public Transaction getTransaction() {
-		return this.transaction;
-	}
-
-	public void setTransaction(Transaction transaction) {
-		this.transaction = transaction;
-	}
 
 	/**
 	 * Initialize by populating all required config parameters
@@ -77,20 +67,12 @@ public class AxisGateway implements Gateway {
 	 *            containing all required config parameters
 	 */
 	
-	
-	  public AxisGateway() {
-	  
-	  }
-	 
+
 	
 	@Autowired
-	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper,Transaction transaction) {
-		System.out.println("Transaction Parameters AxisGateway : " + transaction.toString());
+	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
-		this.transaction = transaction;
-		String module= transaction.getModule();
-		System.out.println("module :: " + module);
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
@@ -106,22 +88,8 @@ public class AxisGateway implements Gateway {
 		System.out.println("WATERTANKER_KEY_ID: " + WATERTANKER_KEY_ID);
 		System.out.println("OPMS_KEY_ID: " + OPMS_KEY_ID);
 				
-		try {
-			 if("PUBLIC_HEALTH_SERVICES_DIV2".equalsIgnoreCase(module)) {
-				 this.razorpay=new RazorpayClient(WATER_KEY_ID, KEY_SECRET); 
-			}
-			 else if("PUBLIC_HEALTH_SERVICES_DIV4".equalsIgnoreCase(module)) {
-				  this.razorpay=new RazorpayClient(SEWERAGE_KEY_ID, KEY_SECRET); 
-			}
-			 else if("BWT".equalsIgnoreCase(module)) {
-				  this.razorpay=new RazorpayClient(WATERTANKER_KEY_ID, KEY_SECRET); 
-			 }
-			 else if(module.startsWith("OPMS")) {
-				   this.razorpay=new RazorpayClient(OPMS_KEY_ID, KEY_SECRET);
-			  }else {
-				  this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);	  
-			  }
-			//this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
+		try {			 
+			this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
 		} catch (RazorpayException e) {
 			throw new RuntimeException(e);
 		}
