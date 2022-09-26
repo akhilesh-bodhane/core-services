@@ -56,7 +56,6 @@ public class AxisGateway implements Gateway {
 	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
 	private RazorpayClient razorpay;
-	
 
 	/**
 	 * Initialize by populating all required config parameters
@@ -66,13 +65,11 @@ public class AxisGateway implements Gateway {
 	 * @param environment
 	 *            containing all required config parameters
 	 */
-	
-
-	
 	@Autowired
 	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
+		
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
