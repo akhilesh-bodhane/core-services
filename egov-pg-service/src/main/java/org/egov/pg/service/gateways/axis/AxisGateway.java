@@ -107,6 +107,7 @@ public class AxisGateway implements Gateway {
 		String key = null;
 		if (module != null) {
 			key = environment.getRequiredProperty("axis.key.id." + module);
+			System.out.println("keyyyyyy:: " + key);
 			if (key == null)
 				key = environment.getRequiredProperty("axis.key.id");
 
@@ -120,14 +121,15 @@ public class AxisGateway implements Gateway {
 	private String getKeySecret(String module) {
 		System.out.println("getKeySecret method:: " + module);
 		String keySecret = null;
-		if (module != null) {
-			keySecret = environment.getRequiredProperty("axis.key.secret." + module);
-			if (keySecret == null)
-				keySecret = environment.getRequiredProperty("axis.key.secret");
-
-		} else {
-			keySecret = environment.getRequiredProperty("axis.key.secret");
-		}
+		keySecret = environment.getRequiredProperty("axis.key.secret");
+		System.out.println("keySecret:: " + keySecret);
+		/*
+		 * if (module != null) { keySecret =
+		 * environment.getRequiredProperty("axis.key.secret." + module); if (keySecret
+		 * == null) keySecret = environment.getRequiredProperty("axis.key.secret");
+		 * 
+		 * } else { keySecret = environment.getRequiredProperty("axis.key.secret"); }
+		 */
 		
 		return keySecret;
 	}
