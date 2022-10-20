@@ -153,7 +153,7 @@ public class AxisGateway implements Gateway {
 			/* orderRequest.put(AMOUNT, 10000); */
 			orderRequest.put(CURRENCY_STR, CURRENCY);
 			orderRequest.put(RECEIPT, transaction.getTxnId());
-			RazorpayClient razorpay = getRazorpayClient(module);
+			//RazorpayClient razorpay = getRazorpayClient(module);
 			Order order = razorpay.Orders.create(orderRequest);
 			
 			System.out.println("razorpay:: " + razorpay);
@@ -161,7 +161,7 @@ public class AxisGateway implements Gateway {
 			System.out.println("Order Request : " + orderRequest.toString());
 			System.out.println("Order : " + order.toString());
 
-			responce.put(KEY, getKey(module));
+			//responce.put(KEY, getKey(module));
 			
 //			if (module != null) {
 //				String propValue = environment.getRequiredProperty("axis.key.id." + module);
@@ -182,7 +182,7 @@ public class AxisGateway implements Gateway {
 			 * { responce.put(KEY, WATERTANKER_KEY_ID); } else if(module.startsWith("OPMS"))
 			 * { responce.put(KEY, OPMS_KEY_ID); }else { responce.put(KEY, KEY_ID); }
 			 */
-			//responce.put(KEY, KEY_ID);
+			responce.put(KEY, KEY_ID);
 			responce.put(ORDER_ID, order.get("id"));
 			responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			responce.put("description", transaction.getModule());
