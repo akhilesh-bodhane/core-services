@@ -34,24 +34,20 @@ import lombok.extern.slf4j.Slf4j;
 public class AxisGateway implements Gateway {
 
 	private static final String GATEWAY_NAME = "AXIS";
-
-	private static final String AMOUNT = "amount";
-	private static final String CURRENCY_STR = "currency";
-	private static final String RECEIPT = "receipt";
-	private static final String KEY = "key";
-	private static final String ORDER_ID = "order_id";
-	private static final String CALLBACK_URL = "callback_url";
-	private static final String FAILURE = "FAILURE";
-
+	
+	private static final String AMOUNT="amount";
+	private static final String CURRENCY_STR="currency";
+	private static final String RECEIPT="receipt";
+	private static final String KEY="key";
+	private static final String ORDER_ID="order_id";
+	private static final String CALLBACK_URL="callback_url";
+	private static final String FAILURE="FAILURE";
+	
 	private final boolean ACTIVE;
 	private final String CURRENCY;
 	private final String MERCHANT_ID;
 	private final String KEY_ID;
 	private final String KEY_SECRET;
-//	private final String WATER_KEY_ID;
-//	private final String SEWERAGE_KEY_ID;
-//	private final String WATERTANKER_KEY_ID;
-//	private final String OPMS_KEY_ID;
 
 	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
@@ -60,194 +56,121 @@ public class AxisGateway implements Gateway {
 	/**
 	 * Initialize by populating all required config parameters
 	 *
-	 * @param restTemplate rest template instance to be used to make REST calls
-	 * @param environment  containing all required config parameters
+	 * @param restTemplate
+	 *            rest template instance to be used to make REST calls
+	 * @param environment
+	 *            containing all required config parameters
 	 */
-
-	private Environment environment;
-
 	@Autowired
 	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
-		this.environment = environment;
+		
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
 		KEY_ID = environment.getRequiredProperty("axis.key.id");
 		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
-//		WATER_KEY_ID = environment.getRequiredProperty("axis.key.id.water");
-//		SEWERAGE_KEY_ID = environment.getRequiredProperty("axis.key.id.sewerage");
-//		WATERTANKER_KEY_ID = environment.getRequiredProperty("axis.key.id.watertanker");
-//		OPMS_KEY_ID = environment.getRequiredProperty("axis.key.id.opms");
-//
-//		System.out.println("WATER_KEY_ID: " + WATER_KEY_ID);
-//		System.out.println("SEWERAGE_KEY_ID: " + SEWERAGE_KEY_ID);
-//		System.out.println("WATERTANKER_KEY_ID: " + WATERTANKER_KEY_ID);
-//		System.out.println("OPMS_KEY_ID: " + OPMS_KEY_ID);
-
+		
 		try {
-			this.razorpay = new RazorpayClient(KEY_ID, KEY_SECRET);
+			this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
 		} catch (RazorpayException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	private RazorpayClient getRazorpayClient(String module) {
-		System.out.println("getRazorpayClient method:: " + module);
-		try {
-			return new RazorpayClient(getKey(module), getKeySecret(module));
-		} catch (RazorpayException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private String getKey(String module) {
-		System.out.println("getKey method:: " + module);
-		String key = null;
-		if (module != null) {
-			key = environment.getRequiredProperty("axis.key.id." + module);
-			System.out.println("keyyyyyy:: " + key);
-			if (key == null)
-				key = environment.getRequiredProperty("axis.key.id");
-
-		} else {
-			key = environment.getRequiredProperty("axis.key.id");
-		}
-		
-		return key;
-	}
-
-	private String getKeySecret(String module) {
-		System.out.println("getKeySecret method:: " + module);
-		String keySecret = null;
-		keySecret = environment.getRequiredProperty("axis.key.secret");
-		System.out.println("keySecret:: " + keySecret);
-		/*
-		 * if (module != null) { keySecret =
-		 * environment.getRequiredProperty("axis.key.secret." + module); if (keySecret
-		 * == null) keySecret = environment.getRequiredProperty("axis.key.secret");
-		 * 
-		 * } else { keySecret = environment.getRequiredProperty("axis.key.secret"); }
-		 */
-		
-		return keySecret;
-	}
-	
 	@Override
 	public URI generateRedirectURI(Transaction transaction) {
 		return null;
 	}
-
+	
 	@Override
 	public Map<String, ?> generateRedirectParameter(Transaction transaction) {
-		Map<String, Object> responce = new HashMap<>();
-		System.out.println("Transaction Parameters generateRedirectParameter method: " + transaction.toString());
+		Map<String, Object> responce=new HashMap<>();
+		System.out.println("Transaction Parameters : " + transaction.toString());
 		try {
-			String module = transaction.getModule();
-			System.out.println("module:: " + module);
-			Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
-			System.out.println("Amount : " + transaction.getTxnAmount());
-			JSONObject orderRequest = new JSONObject();
-			orderRequest.put(AMOUNT, amt);
-			/* orderRequest.put(AMOUNT, 10000); */
-			orderRequest.put(CURRENCY_STR, CURRENCY);
-			orderRequest.put(RECEIPT, transaction.getTxnId());
-			//RazorpayClient razorpay = getRazorpayClient(module);
-			Order order = razorpay.Orders.create(orderRequest);
-			
-			System.out.println("razorpay:: " + razorpay);
-
-			System.out.println("Order Request : " + orderRequest.toString());
-			System.out.println("Order : " + order.toString());
-
-			//responce.put(KEY, getKey(module));
-			
-//			if (module != null) {
-//				String propValue = environment.getRequiredProperty("axis.key.id." + module);
-//				if (propValue != null)
-//					responce.put(KEY, propValue);
-//				else
-//					responce.put(KEY, KEY_ID);
-//			} else {
-//				responce.put(KEY, KEY_ID);
-//			}
-			/* responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount())); */
-			/*
-			 * responce.put(AMOUNT, amt);
-			 * if("PUBLIC_HEALTH_SERVICES_DIV2".equalsIgnoreCase(module)) {
-			 * responce.put(KEY, WATER_KEY_ID); } else
-			 * if("PUBLIC_HEALTH_SERVICES_DIV4".equalsIgnoreCase(module)) {
-			 * responce.put(KEY, SEWERAGE_KEY_ID); } else if("BWT".equalsIgnoreCase(module))
-			 * { responce.put(KEY, WATERTANKER_KEY_ID); } else if(module.startsWith("OPMS"))
-			 * { responce.put(KEY, OPMS_KEY_ID); }else { responce.put(KEY, KEY_ID); }
-			 */
-			responce.put(KEY, KEY_ID);
-			responce.put(ORDER_ID, order.get("id"));
-			responce.put(CALLBACK_URL, transaction.getCallbackUrl());
-			responce.put("description", transaction.getModule());
-			transaction.setGatewayTxnId(order.get("id"));
-			transaction.setTxnStatus(TxnStatusEnum.PENDING);
-			System.out.println("Response : " + responce.toString());
-
-		} catch (RazorpayException e) {
-			throw new RuntimeException(e);
-		}
+			  Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
+			  System.out.println("Amount : " + transaction.getTxnAmount());
+			  JSONObject orderRequest = new JSONObject();
+			  orderRequest.put(AMOUNT, amt); 
+				/* orderRequest.put(AMOUNT, 10000); */
+			  orderRequest.put(CURRENCY_STR, CURRENCY);
+			  orderRequest.put(RECEIPT, transaction.getTxnId());
+			  Order order = razorpay.Orders.create(orderRequest);
+			  
+			  System.out.println("Order Request : " + orderRequest.toString());
+			  System.out.println("Order : " + order.toString());
+			  
+				/* responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount())); */
+			  responce.put(AMOUNT, amt);
+			  responce.put(KEY, KEY_ID);
+			  responce.put(ORDER_ID, order.get("id"));
+			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
+			  responce.put("description", transaction.getModule());
+			  transaction.setGatewayTxnId(order.get("id"));
+			  transaction.setTxnStatus(TxnStatusEnum.PENDING);
+			  System.out.println("Response : " + responce.toString());
+			  
+			} catch (RazorpayException e) {
+			  throw new RuntimeException(e);
+			}
 		return responce;
 	}
 
 	@Override
 	public Transaction fetchStatus(Transaction currentStatus, Map<String, String> params) {
-		return getStatusTransaction(currentStatus, params);
+		return getStatusTransaction(currentStatus,params);
 	}
-
+	
 	private String mapToJson(Map<String, String> map) {
 		try {
-			return objectMapper.writeValueAsString(map);
-		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
-		}
+            return objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 	}
-
+		
 	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
-		String razorPayId = params.get("razorpay_order_id");
-		;
-		String razorPayIdRecon;
-
-		System.out.println("Razor Pay Id : " + razorPayId);
-		System.out.println("Parameters : " + params.toString());
-
+		      String razorPayId = params.get("razorpay_order_id");; 
+		      String razorPayIdRecon;
+		      
+		      System.out.println("Razor Pay Id : " + razorPayId);
+		      System.out.println("Parameters : " + params.toString());
+		      
 		try {
-
-			if (razorPayId != null) {
-				razorPayIdRecon = params.get("razorpay_order_id");
-				System.out.println("Razor Pay Id : " + razorPayIdRecon);
-			} else {
-				razorPayIdRecon = params.get("eg_pg_txnid");
-				System.out.println("Razor Pay Id Recon : " + razorPayIdRecon);
+			
+			 if(razorPayId != null) {
+				 razorPayIdRecon = params.get("razorpay_order_id");	
+				 System.out.println("Razor Pay Id : " + razorPayIdRecon);
+			 } else {
+				 razorPayIdRecon = params.get("eg_pg_txnid");
+				 System.out.println("Razor Pay Id Recon : " + razorPayIdRecon);
+			 }
+			 
+			 Order order = razorpay.Orders.fetch(razorPayIdRecon);
+			  
+			  
+			  if("paid".equals(order.get("status")) || "captured".equals(order.get("status"))) {
+				  return Transaction.builder().txnId(currentStatus.getTxnId())
+							.txnAmount(order.get("amount_paid") + "").txnStatus(TxnStatusEnum.SUCCESS)
+							.gatewayTxnId(order.get("id")).gatewayPaymentMode(params.get("method"))
+							.gatewayStatusCode("")
+							.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
+			  }else if("attempted".equals(order.get("status")) || "failed".equals(order.get("status"))) {
+				  return Transaction.builder().txnId(currentStatus.getTxnId())
+							.txnAmount(order.get("amount_paid") + "").txnStatus(TxnStatusEnum.FAILURE)
+							.gatewayTxnId(order.get("id")).gatewayPaymentMode(order.get("method"))
+							.gatewayStatusCode("")
+							.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
+			  }
+			  
+			  return currentStatus;
+			  
+			} catch (RazorpayException e) {
+			  e.printStackTrace();
+			  throw new RuntimeException(e);
 			}
-			RazorpayClient razorpay = getRazorpayClient(currentStatus.getModule());
-			Order order = razorpay.Orders.fetch(razorPayIdRecon);
-
-			if ("paid".equals(order.get("status")) || "captured".equals(order.get("status"))) {
-				return Transaction.builder().txnId(currentStatus.getTxnId()).txnAmount(order.get("amount_paid") + "")
-						.txnStatus(TxnStatusEnum.SUCCESS).gatewayTxnId(order.get("id"))
-						.gatewayPaymentMode(params.get("method")).gatewayStatusCode("")
-						.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
-			} else if ("attempted".equals(order.get("status")) || "failed".equals(order.get("status"))) {
-				return Transaction.builder().txnId(currentStatus.getTxnId()).txnAmount(order.get("amount_paid") + "")
-						.txnStatus(TxnStatusEnum.FAILURE).gatewayTxnId(order.get("id"))
-						.gatewayPaymentMode(order.get("method")).gatewayStatusCode("")
-						.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
-			}
-
-			return currentStatus;
-
-		} catch (RazorpayException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
-		}
-
+		
 //		if("captured".equals(params.get("status"))) {
 //			return Transaction.builder().txnId(currentStatus.getTxnId())
 //					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.FAILURE)
@@ -261,7 +184,7 @@ public class AxisGateway implements Gateway {
 //					.gatewayStatusCode("")
 //					.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
 //		}
-
+		
 	}
 
 	@Override
