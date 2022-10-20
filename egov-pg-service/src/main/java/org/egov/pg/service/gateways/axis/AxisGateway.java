@@ -46,8 +46,8 @@ public class AxisGateway implements Gateway {
 	private final boolean ACTIVE;
 	private final String CURRENCY;
 	private final String MERCHANT_ID;
-//	private final String KEY_ID;
-//	private final String KEY_SECRET;
+	private final String KEY_ID;
+	private final String KEY_SECRET;
 //	private final String WATER_KEY_ID;
 //	private final String SEWERAGE_KEY_ID;
 //	private final String WATERTANKER_KEY_ID;
@@ -55,7 +55,7 @@ public class AxisGateway implements Gateway {
 
 	private final RestTemplate restTemplate;
 	private ObjectMapper objectMapper;
-//	private RazorpayClient razorpay;
+	private RazorpayClient razorpay;
 
 	/**
 	 * Initialize by populating all required config parameters
@@ -74,8 +74,8 @@ public class AxisGateway implements Gateway {
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
-//		KEY_ID = environment.getRequiredProperty("axis.key.id");
-//		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
+		KEY_ID = environment.getRequiredProperty("axis.key.id");
+		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
 //		WATER_KEY_ID = environment.getRequiredProperty("axis.key.id.water");
 //		SEWERAGE_KEY_ID = environment.getRequiredProperty("axis.key.id.sewerage");
 //		WATERTANKER_KEY_ID = environment.getRequiredProperty("axis.key.id.watertanker");
@@ -86,11 +86,11 @@ public class AxisGateway implements Gateway {
 //		System.out.println("WATERTANKER_KEY_ID: " + WATERTANKER_KEY_ID);
 //		System.out.println("OPMS_KEY_ID: " + OPMS_KEY_ID);
 
-//		try {
-//			this.razorpay = new RazorpayClient(KEY_ID, KEY_SECRET);
-//		} catch (RazorpayException e) {
-//			throw new RuntimeException(e);
-//		}
+		try {
+			this.razorpay = new RazorpayClient(KEY_ID, KEY_SECRET);
+		} catch (RazorpayException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private RazorpayClient getRazorpayClient(String module) {
@@ -182,7 +182,7 @@ public class AxisGateway implements Gateway {
 			 * { responce.put(KEY, WATERTANKER_KEY_ID); } else if(module.startsWith("OPMS"))
 			 * { responce.put(KEY, OPMS_KEY_ID); }else { responce.put(KEY, KEY_ID); }
 			 */
-			// responce.put(KEY, KEY_ID);
+			//responce.put(KEY, KEY_ID);
 			responce.put(ORDER_ID, order.get("id"));
 			responce.put(CALLBACK_URL, transaction.getCallbackUrl());
 			responce.put("description", transaction.getModule());
