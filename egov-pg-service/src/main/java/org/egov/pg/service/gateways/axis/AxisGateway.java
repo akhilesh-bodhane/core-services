@@ -109,6 +109,7 @@ public class AxisGateway implements Gateway {
 			  
 			  transferParams.put("on_hold",true);
 			  transfers.add(transferParams);
+			  orderRequest.put("transfers", transfers);
 			  
 			  Order order = razorpay.Orders.create(orderRequest);
 			  
