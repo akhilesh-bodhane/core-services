@@ -103,7 +103,18 @@ public class AxisGateway implements Gateway {
 			  
 			  List<Object> transfers = new ArrayList<>();
 			  JSONObject transferParams = new JSONObject();
-			  transferParams.put("account","acc_KahZiIWUsegSEr");
+			  
+			  if(transaction.getModule().equals("BWT")) {
+				  transferParams.put("account","acc_KahZiIWUsegSEr");
+			  } else if(transaction.getModule().equals("OSBM")) {
+				  transferParams.put("account","acc_KahXrYzqwKRPR7");
+			  } /*
+					 * else if(transaction.getModule().equals("BWT")) {
+					 * transferParams.put("account","acc_KahZiIWUsegSEr"); } else
+					 * if(transaction.getModule().equals("BWT")) {
+					 * transferParams.put("account","acc_KahZiIWUsegSEr"); }
+					 */
+			  
 			  transferParams.put("amount",amt);
 			  transferParams.put("currency","INR");
 			  
