@@ -92,8 +92,10 @@ public class AxisGateway implements Gateway {
 			  Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
 			  System.out.println("Amount : " + transaction.getTxnAmount());
 			  JSONObject orderRequest = new JSONObject();
+			  //to forward account number for direct transfer
+			  orderRequest.put("account","acc_CPRsN1LkFccllA");
 			  orderRequest.put(AMOUNT, amt); 
-				/* orderRequest.put(AMOUNT, 10000); */
+			  /* orderRequest.put(AMOUNT, 10000); */
 			  orderRequest.put(CURRENCY_STR, CURRENCY);
 			  orderRequest.put(RECEIPT, transaction.getTxnId());
 			  Order order = razorpay.Orders.create(orderRequest);
