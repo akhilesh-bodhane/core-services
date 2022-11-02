@@ -104,16 +104,34 @@ public class AxisGateway implements Gateway {
 			  List<Object> transfers = new ArrayList<>();
 			  JSONObject transferParams = new JSONObject();
 			  
-			  if(transaction.getModule().equals("BWT")) {
-				  transferParams.put("account","acc_KahZiIWUsegSEr");
-			  } else if(transaction.getModule().equals("OSBM")) {
-				  transferParams.put("account","acc_KahXrYzqwKRPR7");
-			  } /*
-					 * else if(transaction.getModule().equals("BWT")) {
-					 * transferParams.put("account","acc_KahZiIWUsegSEr"); } else
-					 * if(transaction.getModule().equals("BWT")) {
-					 * transferParams.put("account","acc_KahZiIWUsegSEr"); }
-					 */
+				if (transaction.getModule().equals("BWT")) {
+					transferParams.put("account", "acc_KahZiIWUsegSEr");
+				} else if (transaction.getModule().equals("OSBM")) {
+					transferParams.put("account", "acc_KahXrYzqwKRPR7");
+				} else if (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV2")) {
+					transferParams.put("account", "acc_JujD4HdQjuEzAm");
+				} else if (transaction.getModule().equals("CTL.REHRI_REGISTRATION")) {
+					transferParams.put("account", "acc_KagcOwwbKC6Hvp");
+				} else if (transaction.getModule().equals("ECHALLAN")) {
+					transferParams.put("account", "acc_KahEcmpO6RBNkg");
+				} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_MILK.RENT")) {
+					transferParams.put("account", "acc_KahGQFnORNCBTK");
+				} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_SECTOR_52_53.RENT")) {
+					transferParams.put("account", "acc_KahTSV9q7YOVRg");
+				} else if (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV4")) {
+					transferParams.put("account", "acc_JujFZN84iMF9Vm");
+				} else if (transaction.getModule().equals("CTL.REHRI_DRIVING_LICENSE")) {
+					transferParams.put("account", "acc_KagqqJ5pPI9kxK");
+				} else if (transaction.getModule().equals("WS.ONE_TIME_FEE")) {
+					transferParams.put("account", "acc_JujD4HdQjuEzAm");
+				} else if (transaction.getModule().equals("OPMS.ROADCUTNOC_RD1")) {
+					transferParams.put("account", "acc_KahV2i0f3uLLqt");
+				} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_KUMHAR.RENT")) {
+					transferParams.put("account", "acc_KahGQFnORNCBTK");
+				} else if (transaction.getModule().equals("OPMS.ROADCUTNOC_RD2")) {
+					transferParams.put("account", "acc_KahV2i0f3uLLqt");
+				}
+					 
 			  
 			  transferParams.put("amount",amt);
 			  transferParams.put("currency","INR");
