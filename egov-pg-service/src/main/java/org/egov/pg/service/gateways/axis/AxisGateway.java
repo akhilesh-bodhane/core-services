@@ -1,7 +1,9 @@
 package org.egov.pg.service.gateways.axis;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.egov.pg.constants.PgConstants;
@@ -93,11 +95,21 @@ public class AxisGateway implements Gateway {
 			  System.out.println("Amount : " + transaction.getTxnAmount());
 			  JSONObject orderRequest = new JSONObject();
 			  //to forward account number for direct transfer
-			  orderRequest.put("account","acc_KahZiIWUsegSEr");
+			  //orderRequest.put("account","acc_KahZiIWUsegSEr");
 			  orderRequest.put(AMOUNT, amt); 
 			  /* orderRequest.put(AMOUNT, 10000); */
 			  orderRequest.put(CURRENCY_STR, CURRENCY);
 			  orderRequest.put(RECEIPT, transaction.getTxnId());
+			  
+			  List<Object> transfers = new ArrayList<>();
+			  JSONObject transferParams = new JSONObject();
+			  transferParams.put("account","acc_KahZiIWUsegSEr");
+			  transferParams.put("amount",amt);
+			  transferParams.put("currency","INR");
+			  
+			  transferParams.put("on_hold",true);
+			  transfers.add(transferParams);
+			  
 			  Order order = razorpay.Orders.create(orderRequest);
 			  
 			  System.out.println("Order Request : " + orderRequest.toString());
