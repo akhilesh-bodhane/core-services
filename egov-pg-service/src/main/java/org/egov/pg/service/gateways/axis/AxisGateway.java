@@ -130,6 +130,14 @@ public class AxisGateway implements Gateway {
 					transferParams.put("account", "acc_KahGQFnORNCBTK");
 				} else if (transaction.getModule().equals("OPMS.ROADCUTNOC_RD2")) {
 					transferParams.put("account", "acc_KahV2i0f3uLLqt");
+				} else if (transaction.getModule().equals("OPMS.STALLSERVICENOC")) {
+					transferParams.put("account", "acc_KbYAPazTv6vClw");
+				} else if (transaction.getModule().equals("OPMS.PETNOC")) {
+					transferParams.put("account", "acc_KbY8qulW6m5gse");
+				} else if (transaction.getModule().equals("OPMS.ADVERTISEMENTNOC")) {
+					transferParams.put("account", "acc_KbY76yyrqdjPhV");
+				} else if (transaction.getModule().equals("OPMS.SELLMEATNOC")) {
+					transferParams.put("account", "acc_KbY2IT2l3U3e4M");
 				} else {
 					transferParams.put("account", "acc_Juj73ssKh9PET4");
 				}
