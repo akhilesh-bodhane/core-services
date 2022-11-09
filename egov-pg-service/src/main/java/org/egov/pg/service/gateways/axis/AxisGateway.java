@@ -95,7 +95,7 @@ public class AxisGateway implements Gateway {
 			  System.out.println("Amount : " + transaction.getTxnAmount());
 			  JSONObject orderRequest = new JSONObject();
 			  //to forward account number for direct transfer
-			  orderRequest.put("account","acc_KahZiIWUsegSEr");
+			  //orderRequest.put("account","acc_KahZiIWUsegSEr");
 			  orderRequest.put(AMOUNT, amt); 
 			  /* orderRequest.put(AMOUNT, 10000); */
 			  orderRequest.put(CURRENCY_STR, CURRENCY);
