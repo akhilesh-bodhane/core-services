@@ -36,15 +36,15 @@ import lombok.extern.slf4j.Slf4j;
 public class AxisGateway implements Gateway {
 
 	private static final String GATEWAY_NAME = "AXIS";
-	
-	private static final String AMOUNT="amount";
-	private static final String CURRENCY_STR="currency";
-	private static final String RECEIPT="receipt";
-	private static final String KEY="key";
-	private static final String ORDER_ID="order_id";
-	private static final String CALLBACK_URL="callback_url";
-	private static final String FAILURE="FAILURE";
-	
+
+	private static final String AMOUNT = "amount";
+	private static final String CURRENCY_STR = "currency";
+	private static final String RECEIPT = "receipt";
+	private static final String KEY = "key";
+	private static final String ORDER_ID = "order_id";
+	private static final String CALLBACK_URL = "callback_url";
+	private static final String FAILURE = "FAILURE";
+
 	private final boolean ACTIVE;
 	private final String CURRENCY;
 	private final String MERCHANT_ID;
@@ -58,24 +58,22 @@ public class AxisGateway implements Gateway {
 	/**
 	 * Initialize by populating all required config parameters
 	 *
-	 * @param restTemplate
-	 *            rest template instance to be used to make REST calls
-	 * @param environment
-	 *            containing all required config parameters
+	 * @param restTemplate rest template instance to be used to make REST calls
+	 * @param environment  containing all required config parameters
 	 */
 	@Autowired
 	public AxisGateway(RestTemplate restTemplate, Environment environment, ObjectMapper objectMapper) {
 		this.restTemplate = restTemplate;
 		this.objectMapper = objectMapper;
-		
+
 		ACTIVE = Boolean.valueOf(environment.getRequiredProperty("axis.active"));
 		CURRENCY = environment.getRequiredProperty("axis.currency");
 		MERCHANT_ID = environment.getRequiredProperty("axis.mid");
 		KEY_ID = environment.getRequiredProperty("axis.key.id");
 		KEY_SECRET = environment.getRequiredProperty("axis.key.secret");
-		
+
 		try {
-			this.razorpay=new RazorpayClient(KEY_ID, KEY_SECRET);
+			this.razorpay = new RazorpayClient(KEY_ID, KEY_SECRET);
 		} catch (RazorpayException e) {
 			throw new RuntimeException(e);
 		}
@@ -85,146 +83,147 @@ public class AxisGateway implements Gateway {
 	public URI generateRedirectURI(Transaction transaction) {
 		return null;
 	}
-	
+
 	@Override
 	public Map<String, ?> generateRedirectParameter(Transaction transaction) {
-		Map<String, Object> responce=new HashMap<>();
+		Map<String, Object> responce = new HashMap<>();
 		System.out.println("Transaction Parameters : " + transaction.toString());
 		try {
-			  Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
-			  System.out.println("Amount : " + transaction.getTxnAmount());
-			  JSONObject orderRequest = new JSONObject();
-			  //to forward account number for direct transfer
-			  //orderRequest.put("account","acc_KahZiIWUsegSEr");
-			  orderRequest.put(AMOUNT, amt); 
-			  /* orderRequest.put(AMOUNT, 10000); */
-			  orderRequest.put(CURRENCY_STR, CURRENCY);
-			  orderRequest.put(RECEIPT, transaction.getTxnId());
-			  
-			  //Multi account changes
-				/*
-				 * List<Object> transfers = new ArrayList<>(); JSONObject transferParams = new
-				 * JSONObject();
-				 * 
-				 * System.out.println("Module Name: " + transaction.getModule());
-				 * 
-				 * if (transaction.getModule().equals("BWT")) { transferParams.put("account",
-				 * "acc_KahZiIWUsegSEr"); } else if (transaction.getModule().equals("OSBM")) {
-				 * transferParams.put("account", "acc_KahXrYzqwKRPR7"); } else if
-				 * (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV2")) {
-				 * transferParams.put("account", "acc_JujD4HdQjuEzAm"); } else if
-				 * (transaction.getModule().equals("CTL.REHRI_REGISTRATION")) {
-				 * transferParams.put("account", "acc_KagcOwwbKC6Hvp"); } else if
-				 * (transaction.getModule().equals("ECHALLAN")) { transferParams.put("account",
-				 * "acc_KahEcmpO6RBNkg"); } else if
-				 * (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_MILK.RENT")) {
-				 * transferParams.put("account", "acc_KahGQFnORNCBTK"); } else if
-				 * (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_SECTOR_52_53.RENT")
-				 * ) { transferParams.put("account", "acc_KahTSV9q7YOVRg"); } else if
-				 * (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV4")) {
-				 * transferParams.put("account", "acc_JujFZN84iMF9Vm"); } else if
-				 * (transaction.getModule().equals("CTL.REHRI_DRIVING_LICENSE")) {
-				 * transferParams.put("account", "acc_KagqqJ5pPI9kxK"); } else if
-				 * (transaction.getModule().equals("WS.ONE_TIME_FEE")) {
-				 * transferParams.put("account", "acc_JujD4HdQjuEzAm"); } else if
-				 * (transaction.getModule().equals("OPMS.ROADCUTNOC_RD1")) {
-				 * transferParams.put("account", "acc_KahV2i0f3uLLqt"); } else if
-				 * (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_KUMHAR.RENT")) {
-				 * transferParams.put("account", "acc_KahGQFnORNCBTK"); } else if
-				 * (transaction.getModule().equals("OPMS.ROADCUTNOC_RD2")) {
-				 * transferParams.put("account", "acc_KahV2i0f3uLLqt"); } else if
-				 * (transaction.getModule().equals("OPMS.STALLSERVICENOC")) {
-				 * transferParams.put("account", "acc_KbYAPazTv6vClw"); } else if
-				 * (transaction.getModule().equals("OPMS.PETNOC")) {
-				 * transferParams.put("account", "acc_KbY8qulW6m5gse"); } else if
-				 * (transaction.getModule().equals("OPMS.ADVERTISEMENTNOC")) {
-				 * transferParams.put("account", "acc_KbY76yyrqdjPhV"); } else if
-				 * (transaction.getModule().equals("OPMS.SELLMEATNOC")) {
-				 * transferParams.put("account", "acc_KbY2IT2l3U3e4M"); } else {
-				 * transferParams.put("account", "acc_Juj73ssKh9PET4"); }
-				 * 
-				 * 
-				 * transferParams.put("amount",amt); transferParams.put("currency","INR");
-				 * 
-				 * transferParams.put("on_hold",true); transfers.add(transferParams);
-				 * orderRequest.put("transfers", transfers);
-				 */
-			  
-			  Order order = razorpay.Orders.create(orderRequest);
-			  
-			  System.out.println("Order Request : " + orderRequest.toString());
-			  System.out.println("Order : " + order.toString());
-			  
-				/* responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount())); */
-			  responce.put(AMOUNT, amt);
-			  responce.put(KEY, KEY_ID);
-			  responce.put(ORDER_ID, order.get("id"));
-			  responce.put(CALLBACK_URL, transaction.getCallbackUrl());
-			  responce.put("description", transaction.getModule());
-			  transaction.setGatewayTxnId(order.get("id"));
-			  transaction.setTxnStatus(TxnStatusEnum.PENDING);
-			  System.out.println("Response : " + responce.toString());
-			  
-			} catch (RazorpayException e) {
-			  throw new RuntimeException(e);
+			Double amt = Double.valueOf(transaction.getTxnAmount()) * 100;
+			System.out.println("Amount : " + transaction.getTxnAmount());
+			JSONObject orderRequest = new JSONObject();
+			// to forward account number for direct transfer
+			// orderRequest.put("account","acc_KahZiIWUsegSEr");
+			orderRequest.put(AMOUNT, amt);
+			/* orderRequest.put(AMOUNT, 10000); */
+			orderRequest.put(CURRENCY_STR, CURRENCY);
+			orderRequest.put(RECEIPT, transaction.getTxnId());
+
+			// Multi account changes
+
+			List<Object> transfers = new ArrayList<>();
+			JSONObject transferParams = new JSONObject();
+
+			System.out.println("Module Name: " + transaction.getModule());
+
+			if (transaction.getModule().equals("BWT")) {
+				transferParams.put("account", "acc_KahZiIWUsegSEr");
+			} else if (transaction.getModule().equals("OSBM")) {
+				transferParams.put("account", "acc_KahXrYzqwKRPR7");
+			} else if (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV2")) {
+				transferParams.put("account", "acc_JujD4HdQjuEzAm");
+			} else if (transaction.getModule().equals("CTL.REHRI_REGISTRATION")) {
+				transferParams.put("account", "acc_KagcOwwbKC6Hvp");
+			} else if (transaction.getModule().equals("ECHALLAN")) {
+				transferParams.put("account", "acc_KahEcmpO6RBNkg");
+			} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_MILK.RENT")) {
+				transferParams.put("account", "acc_KahGQFnORNCBTK");
+			} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_SECTOR_52_53.RENT")) {
+				transferParams.put("account", "acc_KahTSV9q7YOVRg");
+			} else if (transaction.getModule().equals("PUBLIC_HEALTH_SERVICES_DIV4")) {
+				transferParams.put("account", "acc_JujFZN84iMF9Vm");
+			} else if (transaction.getModule().equals("CTL.REHRI_DRIVING_LICENSE")) {
+				transferParams.put("account", "acc_KagqqJ5pPI9kxK");
+			} else if (transaction.getModule().equals("WS.ONE_TIME_FEE")) {
+				transferParams.put("account", "acc_JujD4HdQjuEzAm");
+			} else if (transaction.getModule().equals("OPMS.ROADCUTNOC_RD1")) {
+				transferParams.put("account", "acc_KahV2i0f3uLLqt");
+			} else if (transaction.getModule().equals("RENTED_PROPERTIES_COLONY_KUMHAR.RENT")) {
+				transferParams.put("account", "acc_KahGQFnORNCBTK");
+			} else if (transaction.getModule().equals("OPMS.ROADCUTNOC_RD2")) {
+				transferParams.put("account", "acc_KahV2i0f3uLLqt");
+			} else if (transaction.getModule().equals("OPMS.STALLSERVICENOC")) {
+				transferParams.put("account", "acc_KbYAPazTv6vClw");
+			} else if (transaction.getModule().equals("OPMS.PETNOC")) {
+				transferParams.put("account", "acc_KbY8qulW6m5gse");
+			} else if (transaction.getModule().equals("OPMS.ADVERTISEMENTNOC")) {
+				transferParams.put("account", "acc_KbY76yyrqdjPhV");
+			} else if (transaction.getModule().equals("OPMS.SELLMEATNOC")) {
+				transferParams.put("account", "acc_KbY2IT2l3U3e4M");
+			} else {
+				transferParams.put("account", "acc_Juj73ssKh9PET4");
 			}
+
+			transferParams.put("amount", amt);
+			transferParams.put("currency", "INR");
+
+			transferParams.put("on_hold", false);
+			transfers.add(transferParams);
+			orderRequest.put("transfers", transfers);
+
+			Order order = razorpay.Orders.create(orderRequest);
+
+			System.out.println("Order Request : " + orderRequest.toString());
+			System.out.println("Order : " + order.toString());
+
+			/* responce.put(AMOUNT, Integer.valueOf(transaction.getTxnAmount())); */
+			responce.put(AMOUNT, amt);
+			responce.put(KEY, KEY_ID);
+			responce.put(ORDER_ID, order.get("id"));
+			responce.put(CALLBACK_URL, transaction.getCallbackUrl());
+			responce.put("description", transaction.getModule());
+			transaction.setGatewayTxnId(order.get("id"));
+			transaction.setTxnStatus(TxnStatusEnum.PENDING);
+			System.out.println("Response : " + responce.toString());
+
+		} catch (RazorpayException e) {
+			throw new RuntimeException(e);
+		}
 		return responce;
 	}
 
 	@Override
 	public Transaction fetchStatus(Transaction currentStatus, Map<String, String> params) {
-		return getStatusTransaction(currentStatus,params);
+		return getStatusTransaction(currentStatus, params);
 	}
-	
+
 	private String mapToJson(Map<String, String> map) {
 		try {
-            return objectMapper.writeValueAsString(map);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+			return objectMapper.writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
 	}
-		
+
 	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
-		      String razorPayId = params.get("razorpay_order_id");; 
-		      String razorPayIdRecon;
-		      
-		      System.out.println("Razor Pay Id : " + razorPayId);
-		      System.out.println("Parameters : " + params.toString());
-		      
+		String razorPayId = params.get("razorpay_order_id");
+		;
+		String razorPayIdRecon;
+
+		System.out.println("Razor Pay Id : " + razorPayId);
+		System.out.println("Parameters : " + params.toString());
+
 		try {
-			
-			 if(razorPayId != null) {
-				 razorPayIdRecon = params.get("razorpay_order_id");	
-				 System.out.println("Razor Pay Id : " + razorPayIdRecon);
-			 } else {
-				 razorPayIdRecon = params.get("eg_pg_txnid");
-				 System.out.println("Razor Pay Id Recon : " + razorPayIdRecon);
-			 }
-			 
-			 Order order = razorpay.Orders.fetch(razorPayIdRecon);
-			  
-			  
-			  if("paid".equals(order.get("status")) || "captured".equals(order.get("status"))) {
-				  return Transaction.builder().txnId(currentStatus.getTxnId())
-							.txnAmount(order.get("amount_paid") + "").txnStatus(TxnStatusEnum.SUCCESS)
-							.gatewayTxnId(order.get("id")).gatewayPaymentMode(params.get("method"))
-							.gatewayStatusCode("")
-							.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
-			  }else if("attempted".equals(order.get("status")) || "failed".equals(order.get("status"))) {
-				  return Transaction.builder().txnId(currentStatus.getTxnId())
-							.txnAmount(order.get("amount_paid") + "").txnStatus(TxnStatusEnum.FAILURE)
-							.gatewayTxnId(order.get("id")).gatewayPaymentMode(order.get("method"))
-							.gatewayStatusCode("")
-							.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
-			  }
-			  
-			  return currentStatus;
-			  
-			} catch (RazorpayException e) {
-			  e.printStackTrace();
-			  throw new RuntimeException(e);
+
+			if (razorPayId != null) {
+				razorPayIdRecon = params.get("razorpay_order_id");
+				System.out.println("Razor Pay Id : " + razorPayIdRecon);
+			} else {
+				razorPayIdRecon = params.get("eg_pg_txnid");
+				System.out.println("Razor Pay Id Recon : " + razorPayIdRecon);
 			}
-		
+
+			Order order = razorpay.Orders.fetch(razorPayIdRecon);
+
+			if ("paid".equals(order.get("status")) || "captured".equals(order.get("status"))) {
+				return Transaction.builder().txnId(currentStatus.getTxnId()).txnAmount(order.get("amount_paid") + "")
+						.txnStatus(TxnStatusEnum.SUCCESS).gatewayTxnId(order.get("id"))
+						.gatewayPaymentMode(params.get("method")).gatewayStatusCode("")
+						.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
+			} else if ("attempted".equals(order.get("status")) || "failed".equals(order.get("status"))) {
+				return Transaction.builder().txnId(currentStatus.getTxnId()).txnAmount(order.get("amount_paid") + "")
+						.txnStatus(TxnStatusEnum.FAILURE).gatewayTxnId(order.get("id"))
+						.gatewayPaymentMode(order.get("method")).gatewayStatusCode("")
+						.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
+			}
+
+			return currentStatus;
+
+		} catch (RazorpayException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
+
 //		if("captured".equals(params.get("status"))) {
 //			return Transaction.builder().txnId(currentStatus.getTxnId())
 //					.txnAmount(params.get("amount")).txnStatus(TxnStatusEnum.FAILURE)
@@ -238,7 +237,7 @@ public class AxisGateway implements Gateway {
 //					.gatewayStatusCode("")
 //					.gatewayStatusMsg(params.get("error_description")).responseJson(mapToJson(params)).build();
 //		}
-		
+
 	}
 
 	@Override
