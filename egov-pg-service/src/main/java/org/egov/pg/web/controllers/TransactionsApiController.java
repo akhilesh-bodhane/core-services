@@ -118,9 +118,11 @@ public class TransactionsApiController {
 	 * response.sendRedirect("http://localhost:3000/egov-opms/acknowledgement"); }
 	 */
 	
-	@RequestMapping("/transaction/v1/redirect/{context}/{endpoint}")
-	public void sendRedirect(HttpServletRequest request,HttpServletResponse response,@PathVariable String context,@PathVariable String endpoint) throws IOException {
+	@RequestMapping("/transaction/v1/redirect")
+	public void sendRedirect(HttpServletRequest request,HttpServletResponse response) throws IOException {
 	   
+	String context = request.getParameter("context");
+	String endpoint = request.getParameter("endpoint");
 	String host = null;
 	String hostRef = request.getParameter("hostRef");
 	if(hostRef==null || hostRef.isEmpty()) {
