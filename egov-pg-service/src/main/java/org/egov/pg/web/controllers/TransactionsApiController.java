@@ -15,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -105,6 +108,12 @@ public class TransactionsApiController {
 				.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true);
 		TransactionResponse response = new TransactionResponse(responseInfo, transactions);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping("/transaction/v1/acknowledgement")
+	void handleFoo(HttpServletResponse response) throws IOException {
+		response.sendRedirect("http://localhost:3000/egov-opms/acknowledgement");
 	}
 
 	/**
