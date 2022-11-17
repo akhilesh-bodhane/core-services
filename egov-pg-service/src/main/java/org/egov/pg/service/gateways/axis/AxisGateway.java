@@ -187,13 +187,13 @@ public class AxisGateway implements Gateway {
 		}
 	}
 
-	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params, @RequestParam("razorpay_signature") String razorpaySignature) {
+	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
 		String razorPayId = params.get("razorpay_order_id");
-		//String razorPaySignature = params.get("razorpay_signature");
+		String jsonResponseRazor = currentStatus.getResponseJson().toString();
 		String razorPayIdRecon;
 
 		System.out.println("Razor Pay Id : " + razorPayId);
-		System.out.println("Razor Pay Signature : " + razorpaySignature);
+		System.out.println("json response : " + jsonResponseRazor);
 		System.out.println("Parameters : " + params.toString());
 
 		try {
