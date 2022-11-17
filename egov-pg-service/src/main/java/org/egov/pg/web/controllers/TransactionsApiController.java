@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -111,10 +112,42 @@ public class TransactionsApiController {
 	}
 	
 	
-	@RequestMapping("/transaction/v1/acknowledgement")
-	void handleFoo(HttpServletResponse response) throws IOException {
-		response.sendRedirect("http://localhost:3000/egov-opms/acknowledgement");
+	/*
+	 * @RequestMapping("/transaction/v1/acknowledgement") void
+	 * handleFoo(HttpServletResponse response) throws IOException {
+	 * response.sendRedirect("http://localhost:3000/egov-opms/acknowledgement"); }
+	 */
+	
+	@RequestMapping("/transaction/v1/redirect/{context}/{endpoint}")
+	public void sendRedirect(HttpServletRequest request,HttpServletResponse response,@PathVariable String context,@PathVariable String endpoint) throws IOException {
+	   
+	String host = null;
+	String hostRef = request.getParameter("hostRef");
+	if(hostRef==null || hostRef.isEmpty()) {
+	StringBuffer url = request.getRequestURL();
+	String uri = request.getRequestURI();
+	int idx = (((uri != null) && (uri.length() > 0)) ? url.indexOf(uri) : url.length());
+	host = url.substring(0, idx); //base url
+	}else {
+	host = hostRef;
 	}
+
+	StringBuffer redirectUrl = new StringBuffer(host+"/");
+	   redirectUrl.append(context+"/");
+	   redirectUrl.append(endpoint);
+	   redirectUrl.append("?");
+	   Map<String, String[]> reqParam = request.getParameterMap();
+	   for(Map.Entry<String, String[]> map:reqParam.entrySet()) {
+	    if(!map.getKey().equalsIgnoreCase("hostRef")) {
+	    redirectUrl.append(map.getKey()+"=");
+	    if(map.getValue()!=null&&map.getValue().length>0)
+	    redirectUrl.append(map.getValue()[0]+"&");
+	    }
+	   
+	   }
+	   System.out.println(redirectUrl);
+	response.sendRedirect(redirectUrl.toString());
+	 }
 
 	/**
 	 * Active payment gateways that can be used for payments
