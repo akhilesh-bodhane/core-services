@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -186,13 +187,13 @@ public class AxisGateway implements Gateway {
 		}
 	}
 
-	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
+	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params, @RequestParam("razorpay_signature") String razorpaySignature) {
 		String razorPayId = params.get("razorpay_order_id");
-		String razorPaySignature = params.get("razorpay_signature");
+		//String razorPaySignature = params.get("razorpay_signature");
 		String razorPayIdRecon;
 
 		System.out.println("Razor Pay Id : " + razorPayId);
-		System.out.println("Razor Pay Signature : " + razorPaySignature);
+		System.out.println("Razor Pay Signature : " + razorpaySignature);
 		System.out.println("Parameters : " + params.toString());
 
 		try {
