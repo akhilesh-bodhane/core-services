@@ -139,6 +139,8 @@ public class TransactionsApiController {
 		String context = request.getParameter("context");
 		String endpoint = request.getParameter("endpoint");
 		
+		System.out.println("Redirect Method : context : " + context );
+		System.out.println("Redirect Method : endpoint : " + endpoint );
 		String host = null;
 		String hostRef = request.getParameter("hostRef");
 		if (hostRef == null || hostRef.isEmpty()) {
@@ -163,7 +165,7 @@ public class TransactionsApiController {
 			}
 
 		}
-		System.out.println(redirectUrl);
+		System.out.println("Redirect Method Call Back URL : " + redirectUrl);
 	    try {
 	    	Boolean updateApiCallRequired = request.getParameter("updateApiCallRequired") == null ? false : Boolean.valueOf(request.getParameter("updateApiCallRequired"));
 	    	Map<String, String> params = new HashMap<>();
