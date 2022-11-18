@@ -2,6 +2,8 @@ package org.egov.pg.web.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 
+import org.egov.common.contract.request.RequestInfo;
+import org.egov.common.contract.request.User;
 import org.egov.pg.models.RefundTransaction;
 import org.egov.pg.models.RefundTransactionRequest;
 import org.egov.pg.models.Transaction;
@@ -20,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +35,17 @@ import java.util.Set;
 @Slf4j
 @Controller
 public class TransactionsApiController {
+	
+	private static final RequestInfo requestInfo;
+
+    static {
+        User userInfo = User.builder()
+                .uuid("SYSTEM_USER")
+                .type("SYSTEM")
+                .roles(Collections.emptyList()).id(0L).build();
+
+        requestInfo = new RequestInfo("", "", 0L, "", "", "", "", "", "", userInfo);
+    }
 
 	private final TransactionService transactionService;
 	private final GatewayService gatewayService;
@@ -123,6 +138,7 @@ public class TransactionsApiController {
 
 		String context = request.getParameter("context");
 		String endpoint = request.getParameter("endpoint");
+		
 		String host = null;
 		String hostRef = request.getParameter("hostRef");
 		if (hostRef == null || hostRef.isEmpty()) {
@@ -148,6 +164,22 @@ public class TransactionsApiController {
 
 		}
 		System.out.println(redirectUrl);
+	    try {
+	    	Boolean updateApiCallRequired = request.getParameter("updateApiCallRequired") == null ? false : Boolean.valueOf(request.getParameter("updateApiCallRequired"));
+	    	Map<String, String> params = new HashMap<>();
+	    	params.put("razorpay_payment_id", request.getParameter("razorpay_payment_id"));
+	    	params.put("razorpay_order_id", request.getParameter("razorpay_order_id"));
+	    	params.put("razorpay_signature", request.getParameter("razorpay_signature"));
+	    	params.put("transactionId", request.getParameter("transactionId"));
+	    	if(updateApiCallRequired) {
+	    		List<Transaction> transactions = transactionService.updateTransaction(requestInfo,
+	    				params);
+	    		System.out.println("Transaction Update for AXIS :" + transactions);
+			}
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    }
+		
 		response.sendRedirect(redirectUrl.toString());
 	}
 
