@@ -119,37 +119,37 @@ public class TransactionsApiController {
 	 */
 	
 	@RequestMapping("/transaction/v1/redirect")
-	public void sendRedirect(HttpServletRequest request,HttpServletResponse response) throws IOException {
-	   
-	String context = request.getParameter("context");
-	String endpoint = request.getParameter("endpoint");
-	String host = null;
-	String hostRef = request.getParameter("hostRef");
-	if(hostRef==null || hostRef.isEmpty()) {
-	StringBuffer url = request.getRequestURL();
-	String uri = request.getRequestURI();
-	int idx = (((uri != null) && (uri.length() > 0)) ? url.indexOf(uri) : url.length());
-	host = url.substring(0, idx); //base url
-	}else {
-	host = hostRef;
-	}
+	public void sendRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-	StringBuffer redirectUrl = new StringBuffer(host+"/");
-	   redirectUrl.append(context+"/");
-	   redirectUrl.append(endpoint);
-	   redirectUrl.append("?");
-	   Map<String, String[]> reqParam = request.getParameterMap();
-	   for(Map.Entry<String, String[]> map:reqParam.entrySet()) {
-	    if(!map.getKey().equalsIgnoreCase("hostRef")) {
-	    redirectUrl.append(map.getKey()+"=");
-	    if(map.getValue()!=null&&map.getValue().length>0)
-	    redirectUrl.append(map.getValue()[0]+"&");
-	    }
-	   
-	   }
-	   System.out.println(redirectUrl);
-	response.sendRedirect(redirectUrl.toString());
-	 }
+		String context = request.getParameter("context");
+		String endpoint = request.getParameter("endpoint");
+		String host = null;
+		String hostRef = request.getParameter("hostRef");
+		if (hostRef == null || hostRef.isEmpty()) {
+			StringBuffer url = request.getRequestURL();
+			String uri = request.getRequestURI();
+			int idx = (((uri != null) && (uri.length() > 0)) ? url.indexOf(uri) : url.length());
+			host = url.substring(0, idx); // base url
+		} else {
+			host = hostRef;
+		}
+
+		StringBuffer redirectUrl = new StringBuffer(host + "/");
+		redirectUrl.append(context + "/");
+		redirectUrl.append(endpoint);
+		redirectUrl.append("?");
+		Map<String, String[]> reqParam = request.getParameterMap();
+		for (Map.Entry<String, String[]> map : reqParam.entrySet()) {
+			if (!map.getKey().equalsIgnoreCase("hostRef")) {
+				redirectUrl.append(map.getKey() + "=");
+				if (map.getValue() != null && map.getValue().length > 0)
+					redirectUrl.append(map.getValue()[0] + "&");
+			}
+
+		}
+		System.out.println(redirectUrl);
+		response.sendRedirect(redirectUrl.toString());
+	}
 
 	/**
 	 * Active payment gateways that can be used for payments

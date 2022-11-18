@@ -189,11 +189,9 @@ public class AxisGateway implements Gateway {
 
 	public Transaction getStatusTransaction(Transaction currentStatus, Map<String, String> params) {
 		String razorPayId = params.get("razorpay_order_id");
-		String jsonResponseRazor = currentStatus.getResponseJson().toString();
 		String razorPayIdRecon;
 
 		System.out.println("Razor Pay Id : " + razorPayId);
-		System.out.println("json response : " + jsonResponseRazor);
 		System.out.println("Parameters : " + params.toString());
 
 		try {
