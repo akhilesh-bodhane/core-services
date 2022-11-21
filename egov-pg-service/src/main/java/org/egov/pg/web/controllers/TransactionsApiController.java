@@ -235,7 +235,7 @@ public class TransactionsApiController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/v1/_device", method = RequestMethod.GET)
+	@RequestMapping(value = "/v1/device/_get", method = RequestMethod.POST)
 	public ResponseEntity<DeviceSources> getDeviceDetails(@RequestHeader("User-Agent") String request) {		
 		DeviceSources deviceDetails = deviceSource.getDeviceDetails(request);
 		return new ResponseEntity<>(deviceDetails, HttpStatus.OK);
