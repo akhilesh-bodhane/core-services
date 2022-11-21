@@ -4,10 +4,12 @@ import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 public class DetectController {
-	@RequestMapping("/device/detect")
+	
+	@RequestMapping(value="/device/detect", method = RequestMethod.GET)
 	public String detect(Device device, Model model) {
 
 		String deviceType = null;
@@ -22,7 +24,7 @@ public class DetectController {
 		System.out.println("Hello User, you are viewing this applicaiton on " + deviceType);
 
 		model.addAttribute("deviceType", deviceType);
-		return "detect";
+		return deviceType;
 	}
 
 }
