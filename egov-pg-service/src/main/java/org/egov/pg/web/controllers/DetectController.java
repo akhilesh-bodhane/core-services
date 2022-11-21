@@ -1,5 +1,6 @@
 package org.egov.pg.web.controllers;
 
+import org.json.JSONObject;
 import org.springframework.http.MediaType;
 import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
@@ -25,7 +26,7 @@ public class DetectController {
 		System.out.println("Hello User, you are viewing this applicaiton on " + deviceType);
 
 		model.addAttribute("deviceType", deviceType);
-		return deviceType;
+		return JSONObject.quote(deviceType);
 	}
 
 }
