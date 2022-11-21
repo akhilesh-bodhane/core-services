@@ -1,5 +1,6 @@
 package org.egov.pg.web.controllers;
 
+import org.springframework.http.MediaType;
 import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class DetectController {
 	
-	@RequestMapping(value="/device/detect", method = RequestMethod.GET)
+	@RequestMapping(value="/device/detect", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public String detect(Device device, Model model) {
 
 		String deviceType = null;
