@@ -9,6 +9,7 @@ import org.egov.pg.models.RefundTransactionRequest;
 import org.egov.pg.models.Transaction;
 import org.egov.pg.service.GatewayService;
 import org.egov.pg.service.TransactionService;
+import org.egov.pg.utils.DeviceSource;
 import org.egov.pg.utils.ResponseInfoFactory;
 import org.egov.pg.web.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ import java.util.Set;
 public class TransactionsApiController {
 	
 	private static final RequestInfo requestInfo;
+	
+	
 
     static {
         User userInfo = User.builder()
@@ -48,12 +51,16 @@ public class TransactionsApiController {
     }
 
 	private final TransactionService transactionService;
+	
 	private final GatewayService gatewayService;
+	
+	private final DeviceSource deviceSource;
 
 	@Autowired
-	public TransactionsApiController(TransactionService transactionService, GatewayService gatewayService) {
+	public TransactionsApiController(TransactionService transactionService, GatewayService gatewayService, DeviceSource deviceSource) {
 		this.transactionService = transactionService;
 		this.gatewayService = gatewayService;
+		this.deviceSource = deviceSource;
 	}
 
 	/**
@@ -226,6 +233,13 @@ public class TransactionsApiController {
 				.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true);
 		RefundTransactionResponse response = new RefundTransactionResponse(responseInfo, refundTransactions);
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/v1/_device", method = RequestMethod.GET)
+	public ResponseEntity<DeviceSources> getDeviceDetails(@RequestHeader("User-Agent") String request) {
+		
+		DeviceSources deviceDetails = deviceSource.getDeviceDetails(request);
+		return new ResponseEntity<>(deviceDetails, HttpStatus.OK);
 	}
 
 }
