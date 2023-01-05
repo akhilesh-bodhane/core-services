@@ -102,7 +102,7 @@ public class TransactionsApiController {
 			@Valid @RequestBody RequestInfoWrapper requestInfoWrapper,
 			@Valid @ModelAttribute TransactionCriteria transactionCriteria) {
 		transactionCriteria.setOffset(0);
-		transactionCriteria.setLimit(5);
+		transactionCriteria.setLimit(30);
 		List<Transaction> transactions = transactionService.getTransactions(transactionCriteria);
 		ResponseInfo responseInfo = ResponseInfoFactory
 				.createResponseInfoFromRequestInfo(requestInfoWrapper.getRequestInfo(), true);
