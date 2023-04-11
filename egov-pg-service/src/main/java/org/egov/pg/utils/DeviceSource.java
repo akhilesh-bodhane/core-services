@@ -29,7 +29,8 @@ public class DeviceSource {
 		String sourceUuid = UUID.randomUUID().toString();
 		DeviceSources deviceSources = DeviceSources.builder().sourceUuid(sourceUuid)
 				.deviceDetails(deviceDetails.toJSONString())
-				.deviceType(os.getDeviceType() == null ? "" : os.getDeviceType().getName()).build();
+				.deviceType(os.getDeviceType() == null ? "" : os.getDeviceType().getName())
+				.logoutTime(15).build();
 
 		return deviceSources;
 	}

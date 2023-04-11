@@ -39,5 +39,5 @@ public class DeviceSources {
 	private Long createdTime;
 	
 	@JsonProperty("logoutTime")
-	private int logoutTime = 15;
+	private int logoutTime;
 }
