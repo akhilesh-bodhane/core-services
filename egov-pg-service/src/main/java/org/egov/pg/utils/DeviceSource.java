@@ -30,7 +30,7 @@ public class DeviceSource {
 		DeviceSources deviceSources = DeviceSources.builder().sourceUuid(sourceUuid)
 				.deviceDetails(deviceDetails.toJSONString())
 				.deviceType(os.getDeviceType() == null ? "" : os.getDeviceType().getName())
-				.logoutTime(60).build();
+				.build();
 
 		return deviceSources;
 	}
