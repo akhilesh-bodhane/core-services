@@ -1,7 +1,9 @@
 package org.egov.filestore.domain.service;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,6 +18,7 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.AwsS3Repository;
 import org.egov.filestore.repository.CloudFilesManager;
+import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -82,6 +85,12 @@ public class StorageService {
 			throw new EmptyFileUploadRequestException(module, tag, tenantId);
 		} else {
 			System.out.println("File size :" + filesToStore.get(0).getSize());
+			if(filesToStore.get(0).getSize() <= 0 && filesToStore.get(0).getSize() > 5000000) {
+				Map<String, String> errorMsg = new HashMap<>();
+				errorMsg.put("imageSizeUnavailable", "Image File Not Recognized. Please upload a small file less than 5 MB");
+				throw new CustomException(errorMsg);
+			}
+			
 		}
 	}
 
