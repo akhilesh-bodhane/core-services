@@ -18,6 +18,7 @@ import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -68,28 +69,33 @@ public class CloudFileMgrUtils {
 			System.out.println("File : " + file.toString());
 			System.out.println("File input Stream : " + file.getInputStream().read());
 			System.out.println("Original Image : " + originalImage);
-			if (null == originalImage) {
-				System.out.println("Original Image : " + originalImage);
-				Map<String, String> map = new HashMap<>();
-				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
-				throw new CustomException(map);
+			
+			if (file.getInputStream().read() > 0) {
+				if (null == originalImage) {
+					System.out.println("Original Image : " + originalImage);
+					Map<String, String> map = new HashMap<>();
+					map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
+					throw new CustomException(map);
+				}
+				BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
+						null, Scalr.OP_ANTIALIAS);
+				BufferedImage mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
+						Scalr.OP_ANTIALIAS);
+				BufferedImage smallImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, smallWidth, null,
+						Scalr.OP_ANTIALIAS);
+
+				int lastIndex = fileName.length();
+				String replaceString = fileName.substring(fileName.lastIndexOf('.'), lastIndex);
+
+				mapOfImagesAndPaths.put(fileName, originalImage);
+				mapOfImagesAndPaths.put(fileName.replace(replaceString, _large + replaceString), largeImage);
+				mapOfImagesAndPaths.put(fileName.replace(replaceString, _medium + replaceString), mediumImg);
+				mapOfImagesAndPaths.put(fileName.replace(replaceString, _small + replaceString), smallImg);
+
+				log.info("Different versions of the image created!");
+			} else {
+				log.info("Image exceed size limit");
 			}
-			BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
-					Scalr.OP_ANTIALIAS);
-			BufferedImage mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
-					Scalr.OP_ANTIALIAS);
-			BufferedImage smallImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, smallWidth, null,
-					Scalr.OP_ANTIALIAS);
-
-			int lastIndex = fileName.length();
-			String replaceString = fileName.substring(fileName.lastIndexOf('.'), lastIndex);
-
-			mapOfImagesAndPaths.put(fileName, originalImage);
-			mapOfImagesAndPaths.put(fileName.replace(replaceString, _large + replaceString), largeImage);
-			mapOfImagesAndPaths.put(fileName.replace(replaceString, _medium + replaceString), mediumImg);
-			mapOfImagesAndPaths.put(fileName.replace(replaceString, _small + replaceString), smallImg);
-
-			log.info("Different versions of the image created!");
 		} catch (Exception e) {
 			log.error("Error while creating different versions of the image: ", e);
 		}
