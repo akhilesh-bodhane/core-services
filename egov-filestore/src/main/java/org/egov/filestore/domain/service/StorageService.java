@@ -18,7 +18,6 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.AwsS3Repository;
 import org.egov.filestore.repository.CloudFilesManager;
-import org.egov.streetvendor.common.CommonConstants;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
