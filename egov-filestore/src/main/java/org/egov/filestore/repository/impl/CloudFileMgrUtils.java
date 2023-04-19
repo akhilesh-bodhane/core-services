@@ -70,14 +70,14 @@ public class CloudFileMgrUtils {
 			System.out.println("File input Stream : " + file.getInputStream().read());
 			System.out.println("Original Image : " + originalImage);
 
-			int fileInput = (Integer) file.getInputStream().read();
-
-			if (null == originalImage && fileInput > 0) {
+			if (null == originalImage) {
 				System.out.println("Original Image : " + originalImage);
 				Map<String, String> map = new HashMap<>();
 				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
 				throw new CustomException(map);
 			} else {
+				
+				System.out.println("Inside else block of Filestore");
 				BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
 						null, Scalr.OP_ANTIALIAS);
 				BufferedImage mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
