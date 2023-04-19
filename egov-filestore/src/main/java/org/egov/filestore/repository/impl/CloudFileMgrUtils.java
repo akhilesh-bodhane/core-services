@@ -69,16 +69,15 @@ public class CloudFileMgrUtils {
 			System.out.println("File : " + file.toString());
 			System.out.println("File input Stream : " + file.getInputStream().read());
 			System.out.println("Original Image : " + originalImage);
-			
-			int fileInput = (Integer)file.getInputStream().read();
-			
-			if(fileInput > 0) {
-				if (null == originalImage) {
-					System.out.println("Original Image : " + originalImage);
-					Map<String, String> map = new HashMap<>();
-					map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
-					throw new CustomException(map);
-				}
+
+			int fileInput = (Integer) file.getInputStream().read();
+
+			if (null == originalImage && fileInput > 0) {
+				System.out.println("Original Image : " + originalImage);
+				Map<String, String> map = new HashMap<>();
+				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
+				throw new CustomException(map);
+			} else {
 				BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
 						null, Scalr.OP_ANTIALIAS);
 				BufferedImage mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
@@ -93,10 +92,7 @@ public class CloudFileMgrUtils {
 				mapOfImagesAndPaths.put(fileName.replace(replaceString, _large + replaceString), largeImage);
 				mapOfImagesAndPaths.put(fileName.replace(replaceString, _medium + replaceString), mediumImg);
 				mapOfImagesAndPaths.put(fileName.replace(replaceString, _small + replaceString), smallImg);
-
 				log.info("Different versions of the image created!");
-			} else {
-				log.info("Image exceed size limit");
 			}
 		} catch (Exception e) {
 			log.error("Error while creating different versions of the image: ", e);
