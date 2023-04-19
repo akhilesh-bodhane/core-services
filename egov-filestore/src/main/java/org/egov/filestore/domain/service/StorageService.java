@@ -18,6 +18,7 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.AwsS3Repository;
 import org.egov.filestore.repository.CloudFilesManager;
+import org.egov.streetvendor.common.CommonConstants;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -86,9 +87,13 @@ public class StorageService {
 		} else {
 			System.out.println("File size :" + filesToStore.get(0).getSize());
 			if(filesToStore.get(0).getSize() <= 0 || filesToStore.get(0).getSize() > 5000000) {
-				Map<String, String> errorMsg = new HashMap<>();
-				errorMsg.put("imageSizeUnavailable", "Image File Not Recognized. Please upload a small file less than 5 MB");
-				throw new CustomException(errorMsg);
+				/*
+				 * Map<String, String> errorMsg = new HashMap<>();
+				 * errorMsg.put("imageSizeUnavailable",
+				 * "Image File Not Recognized. Please upload a small file less than 5 MB");
+				 * throw new CustomException(errorMsg);
+				 */
+				throw new CustomException("MaxUploadSizeExceededException","Image File Not Recognized. Please upload a small file less than 5 MB");
 			}
 			
 		}
