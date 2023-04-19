@@ -70,7 +70,9 @@ public class CloudFileMgrUtils {
 			System.out.println("File input Stream : " + file.getInputStream().read());
 			System.out.println("Original Image : " + originalImage);
 			
-			if (file.getInputStream().read() > 0) {
+			int fileInput = (Integer)file.getInputStream().read();
+			
+			if(fileInput > 0) {
 				if (null == originalImage) {
 					System.out.println("Original Image : " + originalImage);
 					Map<String, String> map = new HashMap<>();
