@@ -72,14 +72,13 @@ public class CloudFileMgrUtils {
 
 			if (null == originalImage) {
 				System.out.println("Original Image : " + originalImage);
-				/*
-				 * Map<String, String> map = new HashMap<>();
-				 * map.put("Image Source Unavailable",
-				 * "Image File present in upload request is Invalid/Not Readable"); throw new
-				 * CustomException(map);
-				 */
+
+				Map<String, String> map = new HashMap<>();
+				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
+				throw new CustomException(map);
+
 			} else {
-				
+
 				System.out.println("Inside else block of Filestore");
 				BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
 						null, Scalr.OP_ANTIALIAS);

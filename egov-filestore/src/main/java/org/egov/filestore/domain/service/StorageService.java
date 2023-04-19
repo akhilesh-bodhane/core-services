@@ -80,6 +80,8 @@ public class StorageService {
 	private void validateFilesToUpload(List<MultipartFile> filesToStore, String module, String tag, String tenantId) {
 		if (CollectionUtils.isEmpty(filesToStore)) {
 			throw new EmptyFileUploadRequestException(module, tag, tenantId);
+		} else {
+			System.out.println("File size :" + filesToStore.get(0).getSize());
 		}
 	}
 
