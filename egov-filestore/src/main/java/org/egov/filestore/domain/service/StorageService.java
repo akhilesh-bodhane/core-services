@@ -85,7 +85,7 @@ public class StorageService {
 			throw new EmptyFileUploadRequestException(module, tag, tenantId);
 		} else {
 			System.out.println("File size :" + filesToStore.get(0).getSize());
-			if(filesToStore.get(0).getSize() <= 0 && filesToStore.get(0).getSize() > 5000000) {
+			if(filesToStore.get(0).getSize() <= 0 || filesToStore.get(0).getSize() > 5000000) {
 				Map<String, String> errorMsg = new HashMap<>();
 				errorMsg.put("imageSizeUnavailable", "Image File Not Recognized. Please upload a small file less than 5 MB");
 				throw new CustomException(errorMsg);
