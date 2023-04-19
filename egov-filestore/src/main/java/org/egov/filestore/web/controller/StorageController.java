@@ -89,7 +89,16 @@ public class StorageController {
 			@RequestParam(value = "tag", required = false) String tag) {
 		System.out.println("Inside storeFiles Method");
 		System.out.println("Files : " + files);
-		final List<String> fileStoreIds = storageService.save(files, module, tag, tenantId);
+		
+		List<String> fileStoreIds = null;
+		
+		try {
+			fileStoreIds = storageService.save(files, module, tag, tenantId);
+		} catch(Exception e) {
+			System.out.println("Inside File Store Save Exception Block");
+			e.printStackTrace();
+		}
+		
 		return getStorageResponse(fileStoreIds, tenantId);
 	}
 
