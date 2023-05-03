@@ -218,7 +218,7 @@ public class AxisGateway implements Gateway {
 						.txnStatus(TxnStatusEnum.SUCCESS).gatewayTxnId(order.get("id"))
 						.gatewayPaymentMode(params.get("method")).gatewayStatusCode("")
 						.gatewayStatusMsg(params.get("description")).responseJson(mapToJson(params)).build();
-			} else if ("attempted".equals(order.get("status")) || "failed".equals(order.get("status"))) {
+			} else if ("attempted".equals(order.get("status")) || "failed".equals(order.get("status")) || "created".equals(order.get("status"))) {
 				return Transaction.builder().txnId(currentStatus.getTxnId()).txnAmount(order.get("amount_paid") + "")
 						.txnStatus(TxnStatusEnum.FAILURE).gatewayTxnId(order.get("id"))
 						.gatewayPaymentMode(order.get("method")).gatewayStatusCode("")
