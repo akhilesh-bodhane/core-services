@@ -1,6 +1,7 @@
 package org.egov.filestore.repository.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
@@ -12,10 +13,12 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.imageio.ImageIO;
 
+import org.egov.filestore.config.FileStoreConfig;
 import org.egov.tracer.model.CustomException;
 import org.imgscalr.Scalr;
 import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartException;
@@ -52,6 +55,9 @@ public class CloudFileMgrUtils {
 
 	@Value("${azure.sas.expiry.time.in.secs}")
 	private Integer azureSASExpiryinSecs;
+	
+	@Autowired
+	private FileStoreConfig fileStoreConfig;
 
 	/**
 	 * This method creates different versions of an image. A single image will be
@@ -62,45 +68,90 @@ public class CloudFileMgrUtils {
 	 * @param fileName
 	 * @return
 	 */
-	public Map<String, BufferedImage> createVersionsOfImage(MultipartFile file, String fileName) {
+	
+	
+public Map<String, BufferedImage> createVersionsOfImage(InputStream inputStream, String fileName) {
+		
 		Map<String, BufferedImage> mapOfImagesAndPaths = new HashMap<>();
+		BufferedImage largeImage = null;
+		BufferedImage mediumImg = null;
+		BufferedImage smallImg = null;
 		try {
-			BufferedImage originalImage = ImageIO.read(file.getInputStream());
-			System.out.println("File : " + file.toString());
-			System.out.println("File input Stream : " + file.getInputStream().read());
-			System.out.println("Original Image : " + originalImage);
-
+			
+			BufferedImage originalImage = ImageIO.read(inputStream);
+			
 			if (null == originalImage) {
-				System.out.println("Original Image : " + originalImage);
+				
 				Map<String, String> map = new HashMap<>();
 				map.put("Image Source Unavailable", "Image File present in upload request is Invalid/Not Readable");
 				throw new CustomException(map);
-
-			} else {
-
-				System.out.println("Inside else block of Filestore");
-				BufferedImage largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
-						null, Scalr.OP_ANTIALIAS);
-				BufferedImage mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth, null,
-						Scalr.OP_ANTIALIAS);
-				BufferedImage smallImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, smallWidth, null,
-						Scalr.OP_ANTIALIAS);
-
-				int lastIndex = fileName.length();
-				String replaceString = fileName.substring(fileName.lastIndexOf('.'), lastIndex);
-
-				mapOfImagesAndPaths.put(fileName, originalImage);
-				mapOfImagesAndPaths.put(fileName.replace(replaceString, _large + replaceString), largeImage);
-				mapOfImagesAndPaths.put(fileName.replace(replaceString, _medium + replaceString), mediumImg);
-				mapOfImagesAndPaths.put(fileName.replace(replaceString, _small + replaceString), smallImg);
-				log.info("Different versions of the image created!");
 			}
+			
+			 largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, fileStoreConfig.getLargeWidth(), null,
+					Scalr.OP_ANTIALIAS);
+			 mediumImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, fileStoreConfig.getMediumWidth(), null,
+					Scalr.OP_ANTIALIAS);
+			 smallImg = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, fileStoreConfig.getSmallWidth(), null,
+					Scalr.OP_ANTIALIAS);
+
+			int lastIndex = fileName.length();
+			String replaceString = fileName.substring(fileName.lastIndexOf('.'), lastIndex);
+
+			mapOfImagesAndPaths.put(fileName.replace(replaceString, fileStoreConfig.get_large() + replaceString), largeImage);
+			mapOfImagesAndPaths.put(fileName.replace(replaceString, fileStoreConfig.get_medium() + replaceString), mediumImg);
+			mapOfImagesAndPaths.put(fileName.replace(replaceString, fileStoreConfig.get_small() + replaceString), smallImg);
+
+			log.info("Different versions of the image created!");
 		} catch (Exception e) {
 			log.error("Error while creating different versions of the image: ", e);
+		} finally {
+			largeImage.flush();
+			mediumImg.flush();
+			smallImg.flush();
 		}
 
 		return mapOfImagesAndPaths;
 	}
+	/*
+	 * public Map<String, BufferedImage> createVersionsOfImage(MultipartFile file,
+	 * String fileName) { Map<String, BufferedImage> mapOfImagesAndPaths = new
+	 * HashMap<>(); try { BufferedImage originalImage =
+	 * ImageIO.read(file.getInputStream()); System.out.println("File : " +
+	 * file.toString()); System.out.println("File input Stream : " +
+	 * file.getInputStream().read()); System.out.println("Original Image : " +
+	 * originalImage);
+	 * 
+	 * if (null == originalImage) { System.out.println("Original Image : " +
+	 * originalImage); Map<String, String> map = new HashMap<>();
+	 * map.put("Image Source Unavailable",
+	 * "Image File present in upload request is Invalid/Not Readable"); throw new
+	 * CustomException(map);
+	 * 
+	 * } else {
+	 * 
+	 * System.out.println("Inside else block of Filestore"); BufferedImage
+	 * largeImage = Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC,
+	 * mediumWidth, null, Scalr.OP_ANTIALIAS); BufferedImage mediumImg =
+	 * Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, mediumWidth,
+	 * null, Scalr.OP_ANTIALIAS); BufferedImage smallImg =
+	 * Scalr.resize(originalImage, Method.QUALITY, Mode.AUTOMATIC, smallWidth, null,
+	 * Scalr.OP_ANTIALIAS);
+	 * 
+	 * int lastIndex = fileName.length(); String replaceString =
+	 * fileName.substring(fileName.lastIndexOf('.'), lastIndex);
+	 * 
+	 * mapOfImagesAndPaths.put(fileName, originalImage);
+	 * mapOfImagesAndPaths.put(fileName.replace(replaceString, _large +
+	 * replaceString), largeImage);
+	 * mapOfImagesAndPaths.put(fileName.replace(replaceString, _medium +
+	 * replaceString), mediumImg);
+	 * mapOfImagesAndPaths.put(fileName.replace(replaceString, _small +
+	 * replaceString), smallImg);
+	 * log.info("Different versions of the image created!"); } } catch (Exception e)
+	 * { log.error("Error while creating different versions of the image: ", e); }
+	 * 
+	 * return mapOfImagesAndPaths; }
+	 */
 
 	/**
 	 * Generates SAS tokens for the given URI, this token is used to access files

@@ -2,6 +2,8 @@ package org.egov.filestore.domain.service;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +12,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.egov.filestore.config.FileStoreConfig;
 import org.egov.filestore.domain.exception.EmptyFileUploadRequestException;
 import org.egov.filestore.domain.model.Artifact;
 import org.egov.filestore.domain.model.FileInfo;
@@ -18,6 +24,8 @@ import org.egov.filestore.domain.model.Resource;
 import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.AwsS3Repository;
 import org.egov.filestore.repository.CloudFilesManager;
+import org.egov.filestore.repository.impl.CloudFileMgrUtils;
+import org.egov.filestore.validator.StorageValidator;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +44,15 @@ public class StorageService {
 	private static final String AWS_BUCKET_STRING = "{mybucket}";
 
 	private static final String AWS_FILE_STRING="{filename}";
+	
+	@Autowired
+	private CloudFileMgrUtils util;
+	
+	private StorageValidator storageValidator;
+	
+	private FileStoreConfig fileStoreConfig;
+	
+	private FileStoreConfig configs;;
 	
 	@Value("${is.bucket.fixed}")
 	private Boolean isBucketFixed;
@@ -60,6 +77,15 @@ public class StorageService {
 	
 	@Autowired
 	private CloudFilesManager cloudFilesManager;
+	
+	@Value("${filename.length}")
+	private Integer filenameLength;
+
+	@Value("${filename.useletters}")
+	private Boolean useLetters;
+
+	@Value("${filename.usenumbers}")
+	private Boolean useNumbers;
 	
 	private static final String UPLOAD_MESSAGE = "Received upload request for "
 			+ "jurisdiction: %s, module: %s, tag: %s with file count: %s";
@@ -97,17 +123,76 @@ public class StorageService {
 			
 		}
 	}
-
+	
 	private List<Artifact> mapFilesToArtifacts(List<MultipartFile> files, String module, String tag, String tenantId) {
 
 		final String folderName = getFolderName(module, tenantId);
-		return files.stream().map(file -> {
-			String fileName = folderName + System.currentTimeMillis() + file.getOriginalFilename();
+		String inputStreamAsString = null;
+		List<Artifact> artifacts = new ArrayList<>();
+		Artifact artifact = null;
+		for (MultipartFile file : files) {
+			String randomString = RandomStringUtils.random(filenameLength, useLetters, useNumbers);
+			String orignalFileName = file.getOriginalFilename();
+			String imagetype = FilenameUtils.getExtension(orignalFileName);
+			String fileName = folderName + System.currentTimeMillis() + randomString + "." +imagetype;
 			String id = this.idGeneratorService.getId();
-			FileLocation fileLocation = new FileLocation(id, module, tag, tenantId, fileName,null);
-			return new Artifact(file, fileLocation);
-		}).collect(Collectors.toList());
+			FileLocation fileLocation = new FileLocation(id, module, tag, tenantId, fileName, null);
+			try {
+				inputStreamAsString = IOUtils.toString(file.getInputStream(), fileStoreConfig.getImageCharsetType());
+				artifact = Artifact.builder().fileContentInString(inputStreamAsString).multipartFile(file)
+						.fileLocation(fileLocation).build();
+				artifacts.add(artifact);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				log.error("IO Exception while mapping files to artifact: " + e.getMessage());
+			}
+			storageValidator.validate(artifact);
+			
+			if (fileStoreConfig.getImageFormats().contains(FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())))
+				setThumbnailImages(artifact);
+		}
+
+		return artifacts;
 	}
+	
+private void setThumbnailImages(Artifact artifact) {
+		
+		String completeName = artifact.getFileLocation().getFileName();
+		int index = completeName.indexOf('/');
+		String fileNameWithPath = completeName.substring(index + 1, completeName.length());
+
+		try {
+
+			String imagetype = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
+			String inputStreamAsString = artifact.getFileContentInString();
+			if (fileStoreConfig.getImageFormats().contains(imagetype)) {
+
+				InputStream ipStreamForImg = IOUtils.toInputStream(inputStreamAsString, configs.getImageCharsetType());
+				Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(ipStreamForImg,
+						fileNameWithPath);
+				artifact.setThumbnailImages(mapOfImagesAndPaths);
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			log.error("EG_FILESTORE_INPUT_ERROR", e);
+			throw new CustomException("EG_FILESTORE_INPUT_ERROR", "Failed to read input stream from multipart file");
+		}
+
+	}
+
+	/*
+	 * private List<Artifact> mapFilesToArtifacts(List<MultipartFile> files, String
+	 * module, String tag, String tenantId) {
+	 * 
+	 * final String folderName = getFolderName(module, tenantId); return
+	 * files.stream().map(file -> { String fileName = folderName +
+	 * System.currentTimeMillis() + file.getOriginalFilename(); String id =
+	 * this.idGeneratorService.getId(); FileLocation fileLocation = new
+	 * FileLocation(id, module, tag, tenantId, fileName,null); return new
+	 * Artifact(file, fileLocation); }).collect(Collectors.toList()); }
+	 */
 
 	private String getFolderName(String module, String tenantId) {
 
