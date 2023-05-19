@@ -1,6 +1,7 @@
 package org.egov.filestore.repository.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -98,14 +99,19 @@ public class AzureBlobStorageImpl implements CloudFilesManager {
 					container = azureBlobClient.getContainerReference(fixedContainerName);
 				else
 					container = azureBlobClient.getContainerReference(containerName);
-				container.createIfNotExists(BlobContainerPublicAccessType.CONTAINER, new BlobRequestOptions(), new OperationContext());	
+				container.createIfNotExists(BlobContainerPublicAccessType.CONTAINER, new BlobRequestOptions(), new OperationContext());
+				
+				Long contentLength = artifact.getMultipartFile().getSize();
+				BufferedInputStream inputStream = new BufferedInputStream(artifact.getMultipartFile().getInputStream());
+				
 				if(artifact.getMultipartFile().getContentType().startsWith("image/") && !artifact.getMultipartFile().getContentType().contains("svg")) {
 					System.out.println("Content Type : " + artifact.getMultipartFile().getContentType());
 					String extension = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
 					System.out.println("Extension : " + extension);
 					System.out.println("Multipart File : " + artifact.getMultipartFile());
 					System.out.println("fileNameWithPath : " + fileNameWithPath);
-					Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(artifact.getMultipartFile(), fileNameWithPath);
+					//Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(artifact.getMultipartFile(), fileNameWithPath);
+					Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(inputStream, fileNameWithPath);
 					for(String key: mapOfImagesAndPaths.keySet()) {
 						upload(container, key, null, mapOfImagesAndPaths.get(key), extension);
 						mapOfImagesAndPaths.get(key).flush();
