@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.tika.Tika;
 import org.egov.filestore.config.FileStoreConfig;
 import org.egov.filestore.domain.exception.EmptyFileUploadRequestException;
 import org.egov.filestore.domain.model.Artifact;
@@ -25,7 +26,6 @@ import org.egov.filestore.persistence.repository.ArtifactRepository;
 import org.egov.filestore.persistence.repository.AwsS3Repository;
 import org.egov.filestore.repository.CloudFilesManager;
 import org.egov.filestore.repository.impl.CloudFileMgrUtils;
-import org.egov.filestore.validator.StorageValidator;
 import org.egov.tracer.model.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,13 +46,7 @@ public class StorageService {
 	private static final String AWS_FILE_STRING="{filename}";
 	
 	@Autowired
-	private CloudFileMgrUtils util;
-	
-	private StorageValidator storageValidator;
-	
 	private FileStoreConfig fileStoreConfig;
-	
-	private FileStoreConfig configs;;
 	
 	@Value("${is.bucket.fixed}")
 	private Boolean isBucketFixed;
@@ -103,6 +97,11 @@ public class StorageService {
 		validateFilesToUpload(filesToStore, module, tag, tenantId);
 		log.info(UPLOAD_MESSAGE, module, tag, filesToStore.size());
 		List<Artifact> artifacts = mapFilesToArtifacts(filesToStore, module, tag, tenantId);
+		
+		for(Artifact artifact: artifacts) {
+			validate(artifact);
+		}		
+		
 		return this.artifactRepository.save(artifacts);
 	}
 
@@ -124,78 +123,21 @@ public class StorageService {
 		}
 	}
 	
+	
 	private List<Artifact> mapFilesToArtifacts(List<MultipartFile> files, String module, String tag, String tenantId) {
 
 		final String folderName = getFolderName(module, tenantId);
-		String inputStreamAsString = null;
-		List<Artifact> artifacts = new ArrayList<>();
-		Artifact artifact = null;
-		for (MultipartFile file : files) {
-			String randomString = RandomStringUtils.random(filenameLength, useLetters, useNumbers);
-			String orignalFileName = file.getOriginalFilename();
-			String imagetype = FilenameUtils.getExtension(orignalFileName);
-			String fileName = folderName + System.currentTimeMillis() + randomString + "." +imagetype;
+		return files.stream().map(file -> {
+			String fileName = folderName + System.currentTimeMillis() + file.getOriginalFilename();
 			String id = this.idGeneratorService.getId();
 			FileLocation fileLocation = new FileLocation(id, module, tag, tenantId, fileName, null);
-			try {
-				inputStreamAsString = IOUtils.toString(file.getInputStream(), fileStoreConfig.getImageCharsetType());
-				artifact = Artifact.builder().fileContentInString(inputStreamAsString).multipartFile(file)
-						.fileLocation(fileLocation).build();
-				artifacts.add(artifact);
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				log.error("IO Exception while mapping files to artifact: " + e.getMessage());
-			}
-			storageValidator.validate(artifact);
-			
-			if (fileStoreConfig.getImageFormats().contains(FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())))
-				setThumbnailImages(artifact);
-		}
-
-		return artifacts;
+			return new Artifact(file, fileLocation, id);
+		}).collect(Collectors.toList());
 	}
-	
-private void setThumbnailImages(Artifact artifact) {
-		
-		String completeName = artifact.getFileLocation().getFileName();
-		int index = completeName.indexOf('/');
-		String fileNameWithPath = completeName.substring(index + 1, completeName.length());
-
-		try {
-
-			String imagetype = FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename());
-			String inputStreamAsString = artifact.getFileContentInString();
-			if (fileStoreConfig.getImageFormats().contains(imagetype)) {
-
-				InputStream ipStreamForImg = IOUtils.toInputStream(inputStreamAsString, configs.getImageCharsetType());
-				Map<String, BufferedImage> mapOfImagesAndPaths = util.createVersionsOfImage(ipStreamForImg,
-						fileNameWithPath);
-				artifact.setThumbnailImages(mapOfImagesAndPaths);
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			log.error("EG_FILESTORE_INPUT_ERROR", e);
-			throw new CustomException("EG_FILESTORE_INPUT_ERROR", "Failed to read input stream from multipart file");
-		}
-
-	}
-
-	/*
-	 * private List<Artifact> mapFilesToArtifacts(List<MultipartFile> files, String
-	 * module, String tag, String tenantId) {
-	 * 
-	 * final String folderName = getFolderName(module, tenantId); return
-	 * files.stream().map(file -> { String fileName = folderName +
-	 * System.currentTimeMillis() + file.getOriginalFilename(); String id =
-	 * this.idGeneratorService.getId(); FileLocation fileLocation = new
-	 * FileLocation(id, module, tag, tenantId, fileName,null); return new
-	 * Artifact(file, fileLocation); }).collect(Collectors.toList()); }
-	 */
+	 
+	 
 
 	private String getFolderName(String module, String tenantId) {
-
 		Calendar calendar = Calendar.getInstance();
 		return getBucketName(tenantId, calendar) + "/" + getFolderName(module,tenantId, calendar);
 	}
@@ -247,4 +189,52 @@ private void setThumbnailImages(Artifact artifact) {
 		else
 			return tenantId.split("\\.")[0] + calendar.get(Calendar.YEAR);
 	}
+	
+	//tika method to validate file 
+	
+	public void validate(Artifact artifact) {		
+		String extension = (FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())).toLowerCase();
+		validateFileExtention(extension);
+		validateContentType(artifact.getFileContentInString(), extension);
+		validateInputContentType(artifact);
+	}
+	
+	private void validateFileExtention(String extension) {
+		if(!fileStoreConfig.getAllowedFormatsMap().containsKey(extension)) {
+			throw new CustomException("EG_FILESTORE_INVALID_INPUT","Inalvid input provided for file : " + extension + ", please upload any of the allowed formats : " + fileStoreConfig.getAllowedKeySet());
+		}
+	}
+	
+	private void validateContentType(String inputStreamAsString, String extension) {
+		
+		String inputFormat = null;
+		Tika tika = new Tika();
+		try {
+			
+			InputStream ipStreamForValidation = IOUtils.toInputStream(inputStreamAsString, fileStoreConfig.getImageCharsetType());
+			inputFormat = tika.detect(ipStreamForValidation);
+			ipStreamForValidation.close();
+		} catch (IOException e) {
+			throw new CustomException("EG_FILESTORE_PARSING_ERROR","not able to parse the input please upload a proper file of allowed type : " + e.getMessage());
+		}
+		
+		if (!fileStoreConfig.getAllowedFormatsMap().get(extension).contains(inputFormat)) {
+			throw new CustomException("EG_FILESTORE_INVALID_INPUT", "Inalvid input provided for file, the extension does not match the file format. Please upload any of the allowed formats : "
+							+ fileStoreConfig.getAllowedKeySet());
+		}
+	}
+
+	private void validateInputContentType(Artifact artifact){
+
+		MultipartFile file =  artifact.getMultipartFile();
+		String contentType = file.getContentType();
+		String extension = (FilenameUtils.getExtension(artifact.getMultipartFile().getOriginalFilename())).toLowerCase();
+
+
+		if (!fileStoreConfig.getAllowedFormatsMap().get(extension).contains(contentType)) {
+			throw new CustomException("EG_FILESTORE_INVALID_INPUT", "Invalid Content Type");
+		}
+	}
+
+	
 }

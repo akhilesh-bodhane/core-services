@@ -17,7 +17,5 @@ public class Artifact {
     private FileLocation fileLocation;
     
     private String fileContentInString;
-    
-    private Map<String, BufferedImage> thumbnailImages;
 }
 
