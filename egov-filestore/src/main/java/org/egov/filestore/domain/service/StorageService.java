@@ -98,9 +98,9 @@ public class StorageService {
 		log.info(UPLOAD_MESSAGE, module, tag, filesToStore.size());
 		List<Artifact> artifacts = mapFilesToArtifacts(filesToStore, module, tag, tenantId);
 		
-		for(Artifact artifact: artifacts) {
-			validate(artifact);
-		}		
+		/*
+		 * for(Artifact artifact: artifacts) { validate(artifact); }
+		 */		
 		
 		return this.artifactRepository.save(artifacts);
 	}

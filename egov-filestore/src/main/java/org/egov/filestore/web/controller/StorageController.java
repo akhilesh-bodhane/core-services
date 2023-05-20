@@ -93,13 +93,13 @@ public class StorageController {
 		List<String> fileStoreIds = null;
 		
 		try {
-			fileStoreIds = storageService.save(files, module, tag, tenantId);
+			fileStoreIds = storageService.save(files, module, tag, tenantId);	
 		} catch(Exception e) {
 			System.out.println("Inside File Store Save Exception Block");
 			e.printStackTrace();
 		}
-		
 		return getStorageResponse(fileStoreIds, tenantId);
+		
 	}
 
 	private StorageResponse getStorageResponse(List<String> fileStorageIds, String tenantId) {
