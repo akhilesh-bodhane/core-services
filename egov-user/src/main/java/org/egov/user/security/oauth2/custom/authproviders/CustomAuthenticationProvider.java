@@ -81,6 +81,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         User user;
         try {
             user = userService.getUniqueUser(userName, tenantId, UserType.fromValue(userType));
+            //user login activity save
+            System.out.println("IP Address : " + request.getHeader(IP_HEADER_NAME));
+            userService.handleFailedLogin(user, request.getHeader(IP_HEADER_NAME));
         } catch (UserNotFoundException e) {
             log.error("User not found", e);
             throw new OAuth2Exception("Incorrect username or password");
