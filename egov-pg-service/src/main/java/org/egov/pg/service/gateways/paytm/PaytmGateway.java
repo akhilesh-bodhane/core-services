@@ -170,6 +170,8 @@ public class PaytmGateway implements Gateway {
 			status = Transaction.TxnStatusEnum.SUCCESS;
 		else if (resp.getStatus().equalsIgnoreCase("TXN_FAILURE"))
 			status = Transaction.TxnStatusEnum.FAILURE;
+		else if (resp.getStatus().equalsIgnoreCase("") && resp.getStatus().equalsIgnoreCase(null))
+			status = Transaction.TxnStatusEnum.FAILURE;
 
 		return Transaction.builder().txnId(currentStatus.getTxnId())
 				.txnAmount(Utils.formatAmtAsRupee(resp.getTxnAmount())).txnStatus(status).gatewayTxnId(resp.getTxnId())
