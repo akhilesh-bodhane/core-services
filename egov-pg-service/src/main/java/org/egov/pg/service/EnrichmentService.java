@@ -93,6 +93,13 @@ public class EnrichmentService {
 				.lastModifiedBy(requestInfo.getUserInfo() != null ? requestInfo.getUserInfo().getUuid() : null)
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
+		
+		if(currentTxnStatus.getTxnStatus().toString().equalsIgnoreCase("PENDING") && currentTxnStatus.getTxnStatusMsg().equalsIgnoreCase("Transaction pending at gateway")) {
+			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
+			newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
+		} else {
+			newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
+		}
 
 		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
@@ -104,7 +111,7 @@ public class EnrichmentService {
 		newTxn.setAdditionalDetails(currentTxnStatus.getAdditionalDetails());
 		newTxn.setTaxAndPayments(currentTxnStatus.getTaxAndPayments());
 		newTxn.setConsumerCode(currentTxnStatus.getConsumerCode());
-		newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
+		//newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
 		newTxn.setReceipt(currentTxnStatus.getReceipt());
 
 	}
