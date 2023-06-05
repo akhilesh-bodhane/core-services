@@ -93,6 +93,8 @@ public class EnrichmentService {
 				.lastModifiedBy(requestInfo.getUserInfo() != null ? requestInfo.getUserInfo().getUuid() : null)
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
+		
+		System.out.println("Current Txn Status : " + currentTxnStatus.toString());
 
 		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
@@ -106,6 +108,8 @@ public class EnrichmentService {
 		newTxn.setConsumerCode(currentTxnStatus.getConsumerCode());
 		newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
 		newTxn.setReceipt(currentTxnStatus.getReceipt());
+		
+		System.out.println("New Txn Status : " + newTxn);
 
 	}
 
