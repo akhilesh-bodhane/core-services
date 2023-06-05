@@ -84,6 +84,9 @@ public class EnrichmentService {
 	void enrichUpdateTransaction(TransactionRequest transactionRequest, Transaction newTxn) {
 		RequestInfo requestInfo = transactionRequest.getRequestInfo();
 		Transaction currentTxnStatus = transactionRequest.getTransaction();
+		
+		System.out.println("Current Txn Status Msg : " + currentTxnStatus.getTxnStatusMsg());
+		System.out.println("Current Txn Status : " + currentTxnStatus.getTxnStatus().toString());
 
 		AuditDetails auditDetails = AuditDetails.builder().createdBy(currentTxnStatus.getAuditDetails().getCreatedBy())
 				.createdTime(currentTxnStatus.getAuditDetails().getCreatedTime())
