@@ -94,7 +94,7 @@ public class EnrichmentService {
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 		
-		if(currentTxnStatus.getTxnStatus().toString().equals(Transaction.TxnStatusEnum.PENDING)) {
+		if(currentTxnStatus.getTxnStatus().toString().equals("PENDING")) {
 			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
 			System.out.println("New Txn Status : " + newTxn.getTxnStatus().toString());
 		} else {
