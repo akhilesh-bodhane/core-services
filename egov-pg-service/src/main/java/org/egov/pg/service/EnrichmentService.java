@@ -94,9 +94,9 @@ public class EnrichmentService {
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 		
-		if(currentTxnStatus.getTxnStatus().toString().equalsIgnoreCase("PENDING") && currentTxnStatus.getTxnStatusMsg().equalsIgnoreCase("Transaction pending at gateway")) {
+		if(currentTxnStatus.getTxnStatus().toString().equalsIgnoreCase("PENDING")) {
 			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
-			newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
+			System.out.println("New Txn Status : " + newTxn.getTxnStatus().toString());
 		} else {
 			newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
 		}
