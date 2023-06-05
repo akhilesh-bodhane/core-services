@@ -85,7 +85,7 @@ public class EnrichmentService {
 		RequestInfo requestInfo = transactionRequest.getRequestInfo();
 		Transaction currentTxnStatus = transactionRequest.getTransaction();
 		
-		System.out.println("Current Txn Status Msg : " + currentTxnStatus.getTxnStatusMsg());
+		System.out.println("Current Txn Status Msg : " + currentTxnStatus.getGatewayStatusCode().toString());
 		System.out.println("Current Txn Status : " + currentTxnStatus.getTxnStatus().toString());
 
 		AuditDetails auditDetails = AuditDetails.builder().createdBy(currentTxnStatus.getAuditDetails().getCreatedBy())
@@ -94,7 +94,7 @@ public class EnrichmentService {
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
 		
-		if(currentTxnStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING)) {
+		if(currentTxnStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING) && currentTxnStatus.getGatewayStatusCode().toString().equalsIgnoreCase("402")) {
 			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
 			System.out.println("New Txn Status : " + newTxn.getTxnStatus().toString());
 		} else {
