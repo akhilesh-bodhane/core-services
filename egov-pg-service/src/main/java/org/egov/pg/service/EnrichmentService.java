@@ -93,13 +93,6 @@ public class EnrichmentService {
 				.lastModifiedBy(requestInfo.getUserInfo() != null ? requestInfo.getUserInfo().getUuid() : null)
 				.lastModifiedTime(System.currentTimeMillis()).build();
 		newTxn.setAuditDetails(auditDetails);
-		
-		if(currentTxnStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING) && currentTxnStatus.getGatewayStatusCode().equals("402")) {
-			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
-			System.out.println("New Txn Status : " + newTxn.getTxnStatus().toString());
-		} else {
-			newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
-		}
 
 		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
@@ -111,7 +104,7 @@ public class EnrichmentService {
 		newTxn.setAdditionalDetails(currentTxnStatus.getAdditionalDetails());
 		newTxn.setTaxAndPayments(currentTxnStatus.getTaxAndPayments());
 		newTxn.setConsumerCode(currentTxnStatus.getConsumerCode());
-		//newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
+		newTxn.setTxnStatusMsg(currentTxnStatus.getTxnStatusMsg());
 		newTxn.setReceipt(currentTxnStatus.getReceipt());
 
 	}
