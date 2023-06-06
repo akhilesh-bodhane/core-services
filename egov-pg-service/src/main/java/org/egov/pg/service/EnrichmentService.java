@@ -93,6 +93,11 @@ public class EnrichmentService {
 		
 		System.out.println("Current Txn Status : " + currentTxnStatus.toString());
 		System.out.println("New Txn Status : " + newTxn.toString());
+		
+		if(newTxn.getTxnStatus().toString().equals(Transaction.TxnStatusEnum.PENDING)) {
+			newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
+			System.out.println("Pending status updated to failure.");
+		}
 
 		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
