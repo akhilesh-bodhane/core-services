@@ -84,9 +84,6 @@ public class EnrichmentService {
 	void enrichUpdateTransaction(TransactionRequest transactionRequest, Transaction newTxn) {
 		RequestInfo requestInfo = transactionRequest.getRequestInfo();
 		Transaction currentTxnStatus = transactionRequest.getTransaction();
-		
-		System.out.println("Current Txn Status Msg : " + currentTxnStatus.getGatewayStatusCode());
-		System.out.println("Current Txn Status : " + currentTxnStatus.getTxnStatus().toString());
 
 		AuditDetails auditDetails = AuditDetails.builder().createdBy(currentTxnStatus.getAuditDetails().getCreatedBy())
 				.createdTime(currentTxnStatus.getAuditDetails().getCreatedTime())
@@ -95,6 +92,7 @@ public class EnrichmentService {
 		newTxn.setAuditDetails(auditDetails);
 		
 		System.out.println("Current Txn Status : " + currentTxnStatus.toString());
+		System.out.println("New Txn Status : " + newTxn.toString());
 
 		newTxn.setGatewayTxnId(currentTxnStatus.getGatewayTxnId());
 		newTxn.setTxnId(currentTxnStatus.getTxnId());
