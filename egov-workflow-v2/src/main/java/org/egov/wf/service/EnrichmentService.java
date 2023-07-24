@@ -156,9 +156,9 @@ public class EnrichmentService {
                 assignee = idToUserMap.get(processInstance.getAssignee().getUuid());
             assigner = idToUserMap.get(processInstance.getAssigner().getUuid());
             if(processInstance.getAssignee()!=null && assignee==null)
-                errorMap.put("INVALID UUID","User not found for uuid: "+processInstance.getAssignee().getUuid());
+                errorMap.put("INVALID UUID","Assignee User not found for uuid: "+processInstance.getAssignee().getUuid());
             if(assigner==null)
-                errorMap.put("INVALID UUID","User not found for uuid: "+processInstance.getAssigner().getUuid());
+                errorMap.put("INVALID UUID","Assigner User not found for uuid: "+processInstance.getAssigner().getUuid());
             processInstance.setAssignee(assignee);
             processInstance.setAssigner(assigner);
         });
