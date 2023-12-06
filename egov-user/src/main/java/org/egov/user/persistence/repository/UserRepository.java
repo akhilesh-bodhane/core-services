@@ -277,10 +277,12 @@ public class UserRepository {
         updateuserInputs.put("LastModifiedBy", 1);
 
         namedParameterJdbcTemplate.update(userTypeQueryBuilder.getUpdateUserQuery(), updateuserInputs);
-        if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles()) && !oldUser.getRoles().equals(user.getRoles())) {
-            validateAndEnrichRoles(Collections.singletonList(user));
-            updateRoles(user);
-        }
+        if(oldUser.getRoles() != null) {
+        	if (user.getRoles() != null && !CollectionUtils.isEmpty(user.getRoles()) && !oldUser.getRoles().equals(user.getRoles())) {
+                validateAndEnrichRoles(Collections.singletonList(user));
+                updateRoles(user);
+            }
+        }        
         if (user.getPermanentAndCorrespondenceAddresses() != null) {
             addressRepository.update(user.getPermanentAndCorrespondenceAddresses(), user.getId(), user.getTenantId());
         }
