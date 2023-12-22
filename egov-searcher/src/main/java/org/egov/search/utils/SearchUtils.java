@@ -115,7 +115,7 @@ public class SearchUtils {
 					String operator = (!StringUtils.isEmpty(param.getOperator())) ? " " + param.getOperator() + " " : " IN ";
 					if(!Arrays.asList(validListOperators).contains(operator))
 						operator = " IN "; 
-					whereClause.append(param.getName()).append(operator).append("(").append(":"+param.getName()).append(")");
+					whereClause.append(param.getName()).append(operator).append("(").append(":"+key).append(")");
 				} else {
 					String[] validOperators = {"=", "GE", "LE", "NE", "LIKE"};
 					String operator = (!StringUtils.isEmpty(param.getOperator())) ? param.getOperator(): "=";
