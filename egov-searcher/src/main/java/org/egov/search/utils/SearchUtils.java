@@ -92,6 +92,7 @@ public class SearchUtils {
 			String request = mapper.writeValueAsString(searchRequest);
 			for(Params param : searchParam.getParams()) {
 				Object paramValue = null;
+				String key = param.getJsonPath().split("\\.")[2];
 				try {
 					if(null != param.getIsConstant()) {
 						if(param.getIsConstant()) 
@@ -104,7 +105,7 @@ public class SearchUtils {
 					if (null == paramValue)
 						continue;
 					else 
-						preparedStatementValues.put(param.getName(), paramValue);
+						preparedStatementValues.put(key, paramValue);
 					
 				} catch (Exception e) {
 					continue;
@@ -127,9 +128,9 @@ public class SearchUtils {
 					else if (operator.equals("NE"))
 						operator = "!=";
 					else if (operator.equals("LIKE")) {
-						preparedStatementValues.put(param.getName(), "%" + paramValue + "%");
+						preparedStatementValues.put(key, "%" + paramValue + "%");
 					}								
-					whereClause.append(param.getName()).append(" " + operator + " ").append(":"+param.getName());
+					whereClause.append(param.getName()).append(" " + operator + " ").append(":"+key);
 				}
 				whereClause.append(" " + condition + " ");
 			}
