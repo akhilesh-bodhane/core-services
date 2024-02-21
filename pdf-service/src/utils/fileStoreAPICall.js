@@ -13,7 +13,7 @@ let egovFileHost = envVariables.EGOV_FILESTORE_SERVICE_HOST;
  * @param {*} tenantId - tenantID
  */
 export const fileStoreAPICall = async function(filename, tenantId, fileData) {
-  var url = `${egovFileHost}/filestore-1/v1/files?tenantId=${tenantId}&module=pdfgen&tag=00040-2017-QR`;
+  var url = `${egovFileHost}/filestore/v1/files?tenantId=${tenantId}&module=pdfgen&tag=00040-2017-QR`;
   var form = new FormData();
   form.append("file", fileData, {
     filename: filename,
