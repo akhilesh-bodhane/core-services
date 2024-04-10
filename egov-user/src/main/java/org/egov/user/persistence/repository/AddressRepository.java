@@ -90,8 +90,8 @@ public class AddressRepository {
             return;
         }
 
-        conditionallyDeleteAllAddresses(domainAddresses, entityAddresses);
-        deleteRemovedAddresses(domainAddresses, entityAddresses);
+        //conditionallyDeleteAllAddresses(domainAddresses, entityAddresses);
+        //deleteRemovedAddresses(domainAddresses, entityAddresses);
         createNewAddresses(domainAddresses, entityAddresses, userId, tenantId);
         updateAddresses(domainAddresses, entityAddresses, userId);
     }
@@ -144,7 +144,11 @@ public class AddressRepository {
 
         addressInputs.put("address", address.getAddress());
         addressInputs.put("type", address.getType().toString());
-        addressInputs.put("city", address.getCity());
+        if(address.getCity() == null) {
+        	addressInputs.put("city", "ch.chandigarh");
+        } else {
+        	addressInputs.put("city", address.getCity());
+        }       
         addressInputs.put("pincode", address.getPinCode());
         addressInputs.put("userid", userId);
         addressInputs.put("tenantid", matchingEntityAddress.getTenantId());
