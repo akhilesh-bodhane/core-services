@@ -441,7 +441,7 @@ public class UserService {
             	System.out.println("Inside user losk method");
             	if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
 
-    				User userToBeUpdated = user.toBuilder().accountLocked(false).password(null)
+    				User userToBeUpdated = user.toBuilder().accountLocked(true).password(null)
     						.accountLockedDate(System.currentTimeMillis()).build();
 
     				user = updateWithoutOtpValidation(userToBeUpdated);
