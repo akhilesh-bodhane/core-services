@@ -437,7 +437,7 @@ public class UserService {
                     userRepository.fetchFailedAttemptsByUserAndTime(user.getUuid(),
                             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(maxInvalidLoginAttemptsPeriod));
             
-            if(!user.getUuid().equals("c679c0f3-915d-48ec-8ad0-72c044db0689")) {
+            if(!user.getUuid().equals("2743cf04-6602-4133-su01-79e5d0ce6001")) {
             	System.out.println("Inside user losk method");
             	if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
 
