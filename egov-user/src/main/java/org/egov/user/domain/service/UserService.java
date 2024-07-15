@@ -437,8 +437,8 @@ public class UserService {
                     userRepository.fetchFailedAttemptsByUserAndTime(user.getUuid(),
                             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(maxInvalidLoginAttemptsPeriod));
             
-            if(!user.getUuid().equals("2743cf04-6602-4133-su01-79e5d0ce6001")) {
-            	System.out.println("Inside user losk method");
+            if(!user.getType().equals("SYSTEM")) {
+            	System.out.println("Inside user lock method");
             	if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
 
     				User userToBeUpdated = user.toBuilder().accountLocked(true).password(null)
