@@ -437,7 +437,7 @@ public class UserService {
                     userRepository.fetchFailedAttemptsByUserAndTime(user.getUuid(),
                             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(maxInvalidLoginAttemptsPeriod));
             
-            if(!user.getType().equals("SYSTEM")) {
+            if(!UserType.SYSTEM.equals(user.getType())) {
             	System.out.println("Inside user lock method");
             	if (failedLoginAttempts.size() + 1 >= maxInvalidLoginAttempts) {
 
