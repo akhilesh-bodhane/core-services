@@ -167,6 +167,25 @@ public class UserService {
         user.setTenantId(getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
         return persistNewUser(user);
     }
+    
+    public User createUserWithoutOtp(User user) {
+        user.setUuid(UUID.randomUUID().toString());
+        user.validateNewUser();
+        //conditionallyValidateOtp(user);
+        //validateUserUniqueness(user);
+        if (userRepository.isUserPresent(user.getUsername(), getStateLevelTenantForCitizen(user.getTenantId(), user
+                .getType()), user.getType())) {
+        	return user;
+        } else {
+        	if (isEmpty(user.getPassword())) {
+                user.setPassword(UUID.randomUUID().toString());
+            }
+            user.setPassword(encryptPwd(user.getPassword()));
+            user.setDefaultPasswordExpiry(defaultPasswordExpiryInDays);
+            user.setTenantId(getStateLevelTenantForCitizen(user.getTenantId(), user.getType()));
+            return persistNewUser(user);
+        }
+    }
 
     private void validateUserUniqueness(User user) {
         if (userRepository.isUserPresent(user.getUsername(), getStateLevelTenantForCitizen(user.getTenantId(), user

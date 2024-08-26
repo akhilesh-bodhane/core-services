@@ -82,7 +82,8 @@ public class UserController {
         User user = createUserRequest.toDomain(true);
         user.setMobileValidationMandatory(isMobileValidationRequired(headers));
         user.setOtpValidationMandatory(false);
-        final User newUser = userService.createUser(user);
+        //final User newUser = userService.createUser(user);
+        final User newUser = userService.createUserWithoutOtp(user);
         return createResponse(newUser);
     }
 
