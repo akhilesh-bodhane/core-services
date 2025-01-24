@@ -34,13 +34,14 @@ public class QuartzConfig {
     @Autowired
     private List<Trigger> triggersList;
 
-    @PostConstruct
-    private void init() {
-        log.debug("QuartzConfig initialized.");
-    }
+	/*
+	 * @PostConstruct private void init() { log.debug("QuartzConfig initialized.");
+	 * }
+	 */
 
     //     Uncomment for local dev run
 //    @DependsOn("flywayInitializer")
+    
     @Bean
     SchedulerFactoryBean quartzScheduler() {
         SchedulerFactoryBean quartzScheduler = new SchedulerFactoryBean();
