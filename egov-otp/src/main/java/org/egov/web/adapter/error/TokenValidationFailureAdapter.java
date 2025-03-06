@@ -10,7 +10,7 @@ import java.util.Collections;
 
 public class TokenValidationFailureAdapter implements ErrorAdapter<Token> {
 
-	private static final String OTP_VALIDATION_FAILED_MESSAGE = "OTP validation unsuccessful";
+	private static final String OTP_VALIDATION_FAILED_MESSAGE = "Please enter correct OTP";
     private static final String OTP_VALIDATION_FAILED_CODE = "OTP.VALIDATION_UNSUCCESSFUL";
 	public static final String OTP_FIELD = "otp.otp";
 
