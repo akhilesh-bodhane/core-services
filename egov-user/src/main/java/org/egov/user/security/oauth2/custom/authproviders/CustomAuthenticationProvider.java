@@ -65,6 +65,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) {
         String userName = authentication.getName();
         String password = authentication.getCredentials().toString();
+        String errMessage = "Incorrect username or password";
 
         final LinkedHashMap<String, String> details = (LinkedHashMap<String, String>) authentication.getDetails();
 
@@ -147,8 +148,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             // Handle failed login attempt
             // Fetch Real IP after being forwarded by reverse proxy
             userService.handleFailedLogin(user, request.getHeader(IP_HEADER_NAME));
+            
+            // Checking whether the user is Citizen or Employee and setting the error message accordingly.
+            if (isCitizen) {
+            	errMessage = "Please enter the correct OTP";
+            }
 
-            throw new OAuth2Exception("Incorrect username or password");
+            throw new OAuth2Exception(errMessage);
         }
 
     }
