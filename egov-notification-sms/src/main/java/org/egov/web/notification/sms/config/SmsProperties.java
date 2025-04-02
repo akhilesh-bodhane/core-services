@@ -84,6 +84,8 @@ public class SmsProperties {
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		String encryptedPassword = MD5(password);
 		String genratedhashKey = hashGenerator(userName, smsSender, sms.getMessage(), secureKey);
+		System.out.println("######### Encrypted Password ######## : " + encryptedPassword);
+		System.out.println("######### Hash Key ######## : " + genratedhashKey);
 		MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 		map.add(userParameterName, userName);
 		// map.add(passwordParameterName, password);
