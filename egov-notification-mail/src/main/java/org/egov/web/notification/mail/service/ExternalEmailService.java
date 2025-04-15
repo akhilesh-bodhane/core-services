@@ -1,6 +1,9 @@
 package org.egov.web.notification.mail.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -124,7 +127,14 @@ public class ExternalEmailService implements EmailService {
 				helper.setText(email.getBody(), true);
 				if (!CollectionUtils.isEmpty(email.getAttachments())) {
 					for (Attachment eachAttachment : email.getAttachments()) {
-						ByteArrayDataSource source = new ByteArrayDataSource(eachAttachment.getFileContent(),
+						/*
+						 * ByteArrayDataSource source = new
+						 * ByteArrayDataSource(eachAttachment.getFileContent(),
+						 * eachAttachment.getFileType());
+						 */
+
+						byte[] content = downloadFile(eachAttachment.getUrl());						
+						ByteArrayDataSource source = new ByteArrayDataSource(content,
 								eachAttachment.getFileType());
 						String filename = eachAttachment.getFileName();
 						if (filename != null) {
@@ -144,5 +154,24 @@ public class ExternalEmailService implements EmailService {
 
 		}
 
+	}
+	
+	
+	public byte[] downloadFile(String fileUrl) {
+	    try (InputStream inputStream = new URL(fileUrl).openStream();
+	         ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+
+	        byte[] data = new byte[1024];
+	        int nRead;
+	        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+	            buffer.write(data, 0, nRead);
+	        }
+
+	        return buffer.toByteArray();
+	    } catch (IOException e) {
+	        System.err.println("Failed to download file from URL: " + fileUrl);
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
 }
