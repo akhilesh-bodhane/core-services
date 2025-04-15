@@ -126,7 +126,13 @@ public class ExternalEmailService implements EmailService {
 					for (Attachment eachAttachment : email.getAttachments()) {
 						ByteArrayDataSource source = new ByteArrayDataSource(eachAttachment.getFileContent(),
 								eachAttachment.getFileType());
-						helper.addAttachment(eachAttachment.getFileName(), source);
+						String filename = eachAttachment.getFileName();
+						if (filename != null) {
+							helper.addAttachment(eachAttachment.getFileName(), source);
+						} else {
+						    log.warn("Skipping attachment because filename is null");
+						}
+						
 					}
 				}
 
