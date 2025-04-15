@@ -31,6 +31,7 @@ public class Attachment {
     private String fileType;
 	//private String fileType;// Type of the file, e.g."application/pdf"
 	
+	@JsonProperty("url")
 	private byte[] fileContent; // Content stream of the file
 
 }
