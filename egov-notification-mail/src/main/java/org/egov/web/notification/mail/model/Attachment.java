@@ -26,7 +26,11 @@ public class Attachment {
 	@JsonProperty("name")
 	private String fileName;
 	//private String fileName;// Name of the file
-	private String fileType;// Type of the file, e.g."application/pdf"
+	
+	@JsonProperty("mimeType")
+    private String fileType;
+	//private String fileType;// Type of the file, e.g."application/pdf"
+	
 	private byte[] fileContent; // Content stream of the file
 
 }
