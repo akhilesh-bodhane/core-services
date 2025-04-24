@@ -58,16 +58,15 @@ class TransactionQueryBuilder {
 
         StringBuilder builder = new StringBuilder(preparedQuery);
 
-        if (!preparedQuery.contains("WHERE"))
-            builder.append(" WHERE ");
-        else
-            builder.append(" AND ");
-
-        builder.append(" pg.created_time >= ? ");
-        preparedStmtList.add(startTime);
-        builder.append(" AND ");
-        builder.append(" pg.created_time <= ? ");
-        preparedStmtList.add(endTime);
+        //commented to fetch all PENDING queries
+		/*
+		 * if (!preparedQuery.contains("WHERE")) builder.append(" WHERE "); else
+		 * builder.append(" AND ");
+		 * 
+		 * builder.append(" pg.created_time >= ? "); preparedStmtList.add(startTime);
+		 * builder.append(" AND "); builder.append(" pg.created_time <= ? ");
+		 * preparedStmtList.add(endTime);
+		 */
 
         return builder.toString();
     }
