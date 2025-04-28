@@ -172,9 +172,11 @@ public class PaytmGateway implements Gateway {
 			status = Transaction.TxnStatusEnum.FAILURE;
 		else if (resp.getStatus().equalsIgnoreCase("") && resp.getStatus().equalsIgnoreCase(null))
 			status = Transaction.TxnStatusEnum.FAILURE;
+		
+		
 
 		return Transaction.builder().txnId(currentStatus.getTxnId())
-				.txnAmount(Utils.formatAmtAsRupee(resp.getTxnAmount())).txnStatus(status).gatewayTxnId(resp.getTxnId())
+				.txnAmount(Utils.formatAmtAsRupee(resp.getTxnAmount() == "" ? "0.0" : resp.getTxnAmount())).txnStatus(status).gatewayTxnId(resp.getTxnId())
 				.gatewayPaymentMode(resp.getPaymentMode()).gatewayStatusCode(resp.getRespCode())
 				.gatewayStatusMsg(resp.getRespMsg()).responseJson(resp).build();
 
