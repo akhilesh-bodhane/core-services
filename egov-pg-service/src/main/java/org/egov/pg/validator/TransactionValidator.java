@@ -118,7 +118,7 @@ public class TransactionValidator {
 		if (!optional.isPresent())
 			throw new CustomException("MISSING_UPDATE_TXN_ID", "Cannot process request, missing transaction id");
 
-		TransactionCriteria criteria = TransactionCriteria.builder().gatewayTxnId(optional.get()).build();
+		TransactionCriteria criteria = TransactionCriteria.builder().txnId(optional.get()).build();
 
 		List<Transaction> statuses = transactionRepository.fetchTransactions(criteria);
 

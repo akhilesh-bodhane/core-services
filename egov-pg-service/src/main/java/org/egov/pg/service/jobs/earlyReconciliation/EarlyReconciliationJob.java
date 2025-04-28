@@ -77,7 +77,7 @@ public class EarlyReconciliationJob implements Job {
                         ())).toString());
         	} else {
         		log.info(transactionService.updateTransactionAxis(requestInfo, Collections.singletonMap(PgConstants.PG_TXN_IN_LABEL, txn
-                        .getGatewayTxnId
+                        .getTxnId
                         ())).toString());
         	}
         }
