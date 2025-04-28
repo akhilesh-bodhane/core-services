@@ -198,11 +198,19 @@ public class TransactionService {
 			if(currentTxnStatus.getGatewayTxnId() != null) {
 				requestParams.put(PgConstants.PG_TXN_IN_LABEL_RAZORPAY, currentTxnStatus.getGatewayTxnId());
 				newTxn = gatewayService.getLiveStatus(currentTxnStatus, requestParams);
+				// Enrich the new transaction status before persisting
+				enrichmentService.enrichUpdateTransaction(new TransactionRequest(requestInfo, currentTxnStatus), newTxn);
+			} else {
+				System.out.println("Current Txn Status : " + currentTxnStatus.toString());
+				newTxn = currentTxnStatus;
+				if(currentTxnStatus.getTxnStatus().equals(Transaction.TxnStatusEnum.PENDING)) {
+					newTxn.setTxnStatus(Transaction.TxnStatusEnum.FAILURE);
+					System.out.println("Pending status updated to failure.");
+				}
+				
+				System.out.println("New Txn Status : " + newTxn.toString());
 			}
 			
-
-			// Enrich the new transaction status before persisting
-			enrichmentService.enrichUpdateTransaction(new TransactionRequest(requestInfo, currentTxnStatus), newTxn);
 		}
 
 		// Check if transaction is successful, amount matches etc
