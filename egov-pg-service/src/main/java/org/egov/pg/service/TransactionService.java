@@ -196,8 +196,9 @@ public class TransactionService {
 
 		} else {
 			if(currentTxnStatus.getGatewayTxnId() != null) {
-				requestParams.put(PgConstants.PG_TXN_IN_LABEL_RAZORPAY, currentTxnStatus.getGatewayTxnId());
-				newTxn = gatewayService.getLiveStatus(currentTxnStatus, requestParams);
+				Map<String, String> params = new HashMap<>();
+				params.put(PgConstants.PG_TXN_IN_LABEL_RAZORPAY, currentTxnStatus.getGatewayTxnId());
+				newTxn = gatewayService.getLiveStatus(currentTxnStatus, params);
 				// Enrich the new transaction status before persisting
 				enrichmentService.enrichUpdateTransaction(new TransactionRequest(requestInfo, currentTxnStatus), newTxn);
 			} else {
