@@ -360,7 +360,11 @@ public class UserService {
             throw new InvalidUpdatePasswordRequestException();
 
         validateExistingPassword(user, updatePasswordRequest.getExistingPassword());
+        
+        validatePasswordStrength(updatePasswordRequest.getNewPassword());
         user.updatePassword(encryptPwd(updatePasswordRequest.getNewPassword()));
+        //security audit fix
+        revokeUserSessions(updatePasswordRequest.getUserName());
         userRepository.update(user, user);
     }
 
@@ -383,6 +387,7 @@ public class UserService {
         }
         user.setOtpReference(request.getOtpReference());
         validateOtp(user);
+        validatePasswordStrength(request.getNewPassword());
         user.updatePassword(encryptPwd(request.getNewPassword()));
         userRepository.update(user, user);
     }
@@ -541,5 +546,48 @@ public class UserService {
         }
     }
 
+    public void revokeUserSessions(String username) {
+
+        Collection<OAuth2AccessToken> accessTokens =
+                tokenStore.findTokensByClientIdAndUserName(USER_CLIENT_ID, username);
+
+        for (OAuth2AccessToken token : accessTokens) {
+
+            // Remove access token
+            tokenStore.removeAccessToken(token);
+
+            
+            if (token.getRefreshToken() != null) {
+                tokenStore.removeRefreshToken(token.getRefreshToken());
+            }
+        }
+    }
+    
+    private void validatePasswordStrength(String password) {
+
+        if (password == null || password.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters long");
+        }
+
+        if (!password.matches(".*[A-Z].*")) {
+            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
+        }
+
+        if (!password.matches(".*[a-z].*")) {
+            throw new IllegalArgumentException("Password must contain at least one lowercase letter");
+        }
+
+        if (!password.matches(".*\\d.*")) {
+            throw new IllegalArgumentException("Password must contain at least one digit");
+        }
+
+        if (!password.matches(".*[@#$%^&+=!].*")) {
+            throw new IllegalArgumentException("Password must contain at least one special character");
+        }
+
+        if (password.contains(" ")) {
+            throw new IllegalArgumentException("Password must not contain spaces");
+        }
+    }
 
 }

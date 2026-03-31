@@ -72,7 +72,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         tokenServices.setTokenEnhancer(customTokenEnhancer);
         tokenServices.setTokenStore(tokenStore);
         tokenServices.setSupportRefreshToken(true);
-        tokenServices.setReuseRefreshToken(true);
+        tokenServices.setReuseRefreshToken(false);
         tokenServices.setAuthenticationManager(customAuthenticationManager);
         tokenServices.setClientDetailsService(clientDetailsService);
         return tokenServices;
