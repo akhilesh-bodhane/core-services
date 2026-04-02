@@ -1,6 +1,8 @@
 package org.egov.user.security;
 
 import org.egov.user.security.oauth2.custom.CustomTokenEnhancer;
+import org.egov.user.security.oauth2.custom.IdleSessionManager;
+import org.egov.user.security.oauth2.custom.SingleSessionTokenServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,6 +45,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	@Autowired
 	private TokenStore tokenStore;
 
+	@Autowired(required = false)
+	private IdleSessionManager idleSessionManager;
+
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		final int accessTokenValidityInSeconds = accessTokenValidityInMinutes * 60;
@@ -68,13 +73,16 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public DefaultTokenServices customTokenServices() {
-        DefaultTokenServices tokenServices = new DefaultTokenServices();
+        SingleSessionTokenServices tokenServices = new SingleSessionTokenServices();
         tokenServices.setTokenEnhancer(customTokenEnhancer);
         tokenServices.setTokenStore(tokenStore);
         tokenServices.setSupportRefreshToken(true);
-        tokenServices.setReuseRefreshToken(true);
+        tokenServices.setReuseRefreshToken(false);
         tokenServices.setAuthenticationManager(customAuthenticationManager);
         tokenServices.setClientDetailsService(clientDetailsService);
+        if (idleSessionManager != null) {
+            tokenServices.setIdleSessionManager(idleSessionManager);
+        }
         return tokenServices;
     }
 }
