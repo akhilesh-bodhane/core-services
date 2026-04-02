@@ -389,6 +389,7 @@ public class UserService {
         validateOtp(user);
         validatePasswordStrength(request.getNewPassword());
         user.updatePassword(encryptPwd(request.getNewPassword()));
+         revokeUserSessions(request.getUserName());
         userRepository.update(user, user);
     }
 
