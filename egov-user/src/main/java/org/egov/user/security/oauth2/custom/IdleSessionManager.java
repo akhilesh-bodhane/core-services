@@ -2,6 +2,7 @@ package org.egov.user.security.oauth2.custom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,8 @@ public class IdleSessionManager {
     @Value("${auth.session.idle.timeout.minutes:30}")
     private long idleTimeoutMinutes;
 
+    @Autowired
     private RedisTemplate<String, Long> redisTemplate;
-
-    public IdleSessionManager(RedisTemplate<String, Long> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     /**
      * Record last activity time for a token.
