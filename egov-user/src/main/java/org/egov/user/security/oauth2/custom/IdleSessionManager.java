@@ -21,12 +21,12 @@ public class IdleSessionManager {
     @Value("${auth.session.idle.timeout.minutes:30}")
     private long idleTimeoutMinutes;
 
+
     private RedisTemplate<String, Long> redisTemplate;
 
     public IdleSessionManager(RedisTemplate<String, Long> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
-
     /**
      * Record last activity time for a token.
      * Called when token is first created or on each API request.

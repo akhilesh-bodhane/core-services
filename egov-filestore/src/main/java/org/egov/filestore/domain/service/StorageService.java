@@ -65,6 +65,9 @@ public class StorageService {
 	private IdGeneratorService idGeneratorService;
 
 	@Autowired
+	private FileUploadValidator fileUploadValidator;
+
+	@Autowired
 	public StorageService(ArtifactRepository artifactRepository, IdGeneratorService idGeneratorService) {
 		this.artifactRepository = artifactRepository;
 		this.idGeneratorService = idGeneratorService;
@@ -72,6 +75,8 @@ public class StorageService {
 
 	public List<String> save(List<MultipartFile> filesToStore, String module, String tag, String tenantId) {
 		validateFilesToUpload(filesToStore, module, tag, tenantId);
+		// Validate each file's extension, mime type and filename for common malicious patterns
+		fileUploadValidator.validate(filesToStore);
 		log.info(UPLOAD_MESSAGE, module, tag, filesToStore.size());
 		List<Artifact> artifacts = mapFilesToArtifacts(filesToStore, module, tag, tenantId);
 		return this.artifactRepository.save(artifacts);
