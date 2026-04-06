@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 
@@ -25,10 +26,12 @@ import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
  * (matching username, tenantId, and user type) are revoked.
  * Activity is recorded for idle timeout tracking.
  */
+@Component
 public class SingleSessionTokenServices extends DefaultTokenServices {
 
     private static final Logger logger = LoggerFactory.getLogger(SingleSessionTokenServices.class);
 
+    @Autowired
     private TokenStore tokenStore;
 
     @Autowired(required = false)
@@ -37,20 +40,12 @@ public class SingleSessionTokenServices extends DefaultTokenServices {
     @Value("${auth.singleSession.enabled:true}")
     private boolean singleSessionEnabled;
 
-    public SingleSessionTokenServices(TokenStore tokenStore) {
-        this.tokenStore = tokenStore;
-    }
-
-    public SingleSessionTokenServices() {
-        // Default constructor for bean instantiation
-    }
-
-    public void setTokenStore(TokenStore tokenStore) {
+    public void setTokenStoreRef(TokenStore tokenStore) {
         this.tokenStore = tokenStore;
         super.setTokenStore(tokenStore);
     }
 
-    public void setIdleSessionManager(IdleSessionManager idleSessionManager) {
+    public void setIdleSessionManagerRef(IdleSessionManager idleSessionManager) {
         this.idleSessionManager = idleSessionManager;
     }
 
@@ -89,14 +84,20 @@ public class SingleSessionTokenServices extends DefaultTokenServices {
             String tenantId = userInfo.getTenantId();
             String userType = userInfo.getType();
 
+            logger.info("Single session enforcement: Checking for existing tokens for user: {} tenant: {}", 
+                username, tenantId);
+
             // Find all existing tokens for this user
             Collection<OAuth2AccessToken> tokens = tokenStore.findTokensByClientIdAndUserName(
                     USER_CLIENT_ID, username);
 
+            logger.info("Found {} existing tokens for user: {}", tokens.size(), username);
+
             // Revoke tokens that match the same tenant and user type
             for (OAuth2AccessToken token : tokens) {
                 if (shouldRevokeToken(token, username, tenantId, userType)) {
-                    logger.debug("Revoking existing token for user: {} tenant: {}", username, tenantId);
+                    logger.info("Revoking existing token for user: {} tenant: {} - Invalidating previous session", 
+                        username, tenantId);
                     
                     // Remove activity record for idle timeout tracking
                     if (idleSessionManager != null) {
