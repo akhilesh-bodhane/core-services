@@ -48,6 +48,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 	@Autowired(required = false)
 	private IdleSessionManager idleSessionManager;
 
+	@Autowired
+	private SingleSessionTokenServices singleSessionTokenServices;
+
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 		final int accessTokenValidityInSeconds = accessTokenValidityInMinutes * 60;
@@ -73,16 +76,15 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public DefaultTokenServices customTokenServices() {
-        SingleSessionTokenServices tokenServices = new SingleSessionTokenServices();
-        tokenServices.setTokenEnhancer(customTokenEnhancer);
-        tokenServices.setTokenStore(tokenStore);
-        tokenServices.setSupportRefreshToken(true);
-        tokenServices.setReuseRefreshToken(false);
-        tokenServices.setAuthenticationManager(customAuthenticationManager);
-        tokenServices.setClientDetailsService(clientDetailsService);
+        singleSessionTokenServices.setTokenStoreRef(tokenStore);
+        singleSessionTokenServices.setTokenEnhancer(customTokenEnhancer);
+        singleSessionTokenServices.setSupportRefreshToken(true);
+        singleSessionTokenServices.setReuseRefreshToken(false);
+        singleSessionTokenServices.setAuthenticationManager(customAuthenticationManager);
+        singleSessionTokenServices.setClientDetailsService(clientDetailsService);
         if (idleSessionManager != null) {
-            tokenServices.setIdleSessionManager(idleSessionManager);
+            singleSessionTokenServices.setIdleSessionManagerRef(idleSessionManager);
         }
-        return tokenServices;
+        return singleSessionTokenServices;
     }
 }
