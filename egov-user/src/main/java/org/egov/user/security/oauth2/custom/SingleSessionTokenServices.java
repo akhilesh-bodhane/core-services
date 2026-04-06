@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 
 import static org.egov.user.config.UserServiceConstants.USER_CLIENT_ID;
@@ -40,13 +41,10 @@ public class SingleSessionTokenServices extends DefaultTokenServices {
     @Value("${auth.singleSession.enabled:true}")
     private boolean singleSessionEnabled;
 
-    public void setTokenStoreRef(TokenStore tokenStore) {
-        this.tokenStore = tokenStore;
+    @PostConstruct
+    public void init() {
+        // Set tokenStore after autowiring is complete
         super.setTokenStore(tokenStore);
-    }
-
-    public void setIdleSessionManagerRef(IdleSessionManager idleSessionManager) {
-        this.idleSessionManager = idleSessionManager;
     }
 
     @Override

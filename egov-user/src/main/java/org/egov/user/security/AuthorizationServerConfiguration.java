@@ -76,15 +76,11 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public DefaultTokenServices customTokenServices() {
-        singleSessionTokenServices.setTokenStoreRef(tokenStore);
         singleSessionTokenServices.setTokenEnhancer(customTokenEnhancer);
         singleSessionTokenServices.setSupportRefreshToken(true);
         singleSessionTokenServices.setReuseRefreshToken(false);
         singleSessionTokenServices.setAuthenticationManager(customAuthenticationManager);
         singleSessionTokenServices.setClientDetailsService(clientDetailsService);
-        if (idleSessionManager != null) {
-            singleSessionTokenServices.setIdleSessionManagerRef(idleSessionManager);
-        }
         return singleSessionTokenServices;
     }
 }
