@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.egov.filestore.domain.exception.ArtifactNotFoundException;
 import org.egov.filestore.domain.exception.EmptyFileUploadRequestException;
+import org.egov.filestore.domain.exception.InvalidFileUploadException;
 import org.egov.tracer.model.CustomException;
 import org.egov.tracer.model.Error;
 import org.egov.tracer.model.ErrorRes;
@@ -33,7 +34,14 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(value = EmptyFileUploadRequestException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public String handleEmptyFileUploadRequestException(Exception e) {
-    	log.error(e.getMessage());
+     	log.error(e.getMessage());
+		return e.getMessage();
+	}
+
+	@ExceptionHandler(value = InvalidFileUploadException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public String handleInvalidFileUploadException(Exception e) {
+		log.error(e.getMessage());
 		return e.getMessage();
 	}
 	

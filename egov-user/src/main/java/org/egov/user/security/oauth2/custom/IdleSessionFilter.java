@@ -3,9 +3,9 @@ package org.egov.user.security.oauth2.custom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -76,19 +76,18 @@ public class IdleSessionFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Extract Bearer token from Authorization header.
-     *
-     * @param request the HTTP request
-     * @return the token value, or null if not found
-     */
     private String extractToken(HttpServletRequest request) {
         String authHeader = request.getHeader(AUTHORIZATION_HEADER);
-        
+
         if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
             return authHeader.substring(BEARER_PREFIX.length());
         }
-        
+
+        String requestToken = request.getParameter("access_token");
+        if (StringUtils.hasText(requestToken)) {
+            return requestToken;
+        }
+
         return null;
     }
 
